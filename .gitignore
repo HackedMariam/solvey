@@ -11,6 +11,4 @@ __pycache__/
 venv/
 env/
 
-# Scraper output
-so_bug_data/
-with resolution/
+
