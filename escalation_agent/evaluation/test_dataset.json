@@ -4,6 +4,12 @@
     "name": "Docker Port Conflict (Full Multimodal)",
     "expected_outcome": "escalated",
     "expected_priority": "High",
+    "reference": {
+      "title": "[Docker - Port conflict] Container startup failure due to port 8080 allocation conflict",
+      "summary": "Docker container fails to start because port 8080 is already allocated by another process.",
+      "escalation_reason": "The documented troubleshooting steps did not resolve the issue.",
+      "full_text": "Docker container fails to start because port 8080 is already allocated. Terminal error: Bind for 0.0.0.0:8080 failed: port is already allocated. Troubleshooting attempted: Checked logs and restarted container. User reported container still fails to start. Escalation reason: The documented troubleshooting steps did not resolve the issue."
+    },
     "payload": {
       "case_id": "CASE-EVAL-01",
       "user_request": "Docker container fails to start because port 8080 is already allocated.",
@@ -43,6 +49,12 @@
     "name": "Unknown Error (Zero RAG Docs Found)",
     "expected_outcome": "escalated",
     "expected_priority": "Medium",
+    "reference": {
+      "title": "[Payroll] Unrecognized error 0x899A during payroll script execution",
+      "summary": "Internal payroll script execution fails with unrecognized error 0x899A.",
+      "escalation_reason": "No documentation exists for error 0x899A; requires senior application engineer.",
+      "full_text": "Internal payroll script fails with unrecognized error 0x899A. No diagnostic documentation found. Escalation reason: No documentation exists for error 0x899A; requires senior application engineer."
+    },
     "payload": {
       "case_id": "CASE-EVAL-02",
       "user_request": "Internal payroll script fails with unrecognized error 0x899A.",
@@ -67,6 +79,12 @@
     "name": "Critical Infrastructure Outage",
     "expected_outcome": "escalated",
     "expected_priority": "Highest",
+    "reference": {
+      "title": "[Database] Production Redis cluster node unresponsive causing cache failovers",
+      "summary": "Production Redis cluster node is completely unresponsive and refusing all connections.",
+      "escalation_reason": "Production Redis node outage causing cache failovers.",
+      "full_text": "Production Redis cluster node is unresponsive. Attempted steps: Pinged server IP and checked systemd status. Server refuses connection entirely. Escalation reason: Production Redis node outage causing cache failovers."
+    },
     "payload": {
       "case_id": "CASE-EVAL-03",
       "user_request": "Production Redis cluster node is unresponsive.",
@@ -90,6 +108,12 @@
     "name": "Minimal Input (Missing Optional Vision & RAG)",
     "expected_outcome": "escalated",
     "expected_priority": "Medium",
+    "reference": {
+      "title": "[General IT] Permission access request for finance shared department folder",
+      "summary": "Need permissions to access the finance shared department folder.",
+      "escalation_reason": "Folder access requires IT Admin approval.",
+      "full_text": "Need permissions to access finance shared folder. No prior visual evidence or documentation provided. Escalation reason: Folder access requires IT Admin approval."
+    },
     "payload": {
       "case_id": "CASE-EVAL-04",
       "user_request": "Need permissions to access finance shared folder.",

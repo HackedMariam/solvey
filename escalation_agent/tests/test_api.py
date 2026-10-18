@@ -18,8 +18,10 @@ def test_health_check_endpoint():
     assert "is_mock_mode" in data
 
 
-def test_escalate_endpoint_mock_success():
+def test_escalate_endpoint_mock_success(monkeypatch):
     """Verify /escalate endpoint returns structured success in mock mode."""
+    from config import settings
+    monkeypatch.setattr(settings, "TICKETING_MODE", "mock")
     payload = {
         "case_id": "CASE-API-1",
         "user_request": "Docker container fails to start because port 8080 is allocated.",
