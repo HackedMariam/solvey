@@ -159,14 +159,32 @@ Escalation/Ticket emits:
 
 ```json
 {
-  "title": "Outlook messages remain in Outbox",
-  "summary": "The user cannot send mail; messages remain queued after checking the connection.",
-  "evidence": [{"source": "user_report", "detail": "Messages remain in the Outbox."}],
-  "attempted_steps": ["Checked the network connection."],
-  "priority": "medium",
-  "suggested_actions_for_staff": ["Review Outlook connectivity and mailbox status."]
+  "title": "[Email & Communication - Outlook send failure] Messages remain in the Outbox",
+  "description": "Incident Overview\nCase ID: req-123\nCategory: Email & Communication\nPreserved Urgency (Priority): medium\nSummary: Outlook messages remain queued.\n\nUser Request\nThe user asks why messages are not being sent.\n\nVisual Findings & Terminal OCR\nApplication: Outlook\nObservations: Messages remain in the Outbox.\nExact error text:\n```\nNot provided\n```\n\nRetrieved Technical Documentation (RAG)\nSources: [S1] Troubleshoot messages stuck in Outbox — support.example.org\nKey passage: Messages may remain queued when Work Offline is enabled.\n\nAttempted Troubleshooting & Outcomes\nChecked the network connection — completed.\nUser reported feedback: Messages are still queued.\n\nReason for Escalation\nThe documented check did not resolve the issue; technician review is needed.\n\nSuggested Assignee Group: IT Support (informational only)",
+  "priority": "medium"
 }
 ```
+
+The `title` is the Jira issue summary and must use
+`[<Category label> - <short problem>] <summary>`. The category is the
+human-readable label corresponding to the taxonomy ID in `triage.category`.
+`description` is a plain-text Jira description with exactly these headings,
+in order: `Incident Overview`, `User Request`, `Visual Findings & Terminal
+OCR`, `Retrieved Technical Documentation (RAG)`, `Attempted Troubleshooting &
+Outcomes`, `Reason for Escalation`, and `Suggested Assignee Group: IT Support
+(informational only)`. The overview includes the request ID as Case ID,
+category label, preserved Triage urgency, and summary. Visual findings retain
+the exact OCR error in a fenced code block. RAG evidence includes chunk title,
+source, and key passage; attempted actions list actual outcomes and user
+feedback. Do not present proposed actions as completed attempts. The
+assignee-group line is informational only.
+
+Before Jira creation, the approved Validator verdict and reason are appended
+inside `Reason for Escalation`; the workflow must store the exact Validator-
+approved sanitized dossier, and map the preserved urgency to the Jira
+instance's configured priority IDs. The direct Jira destination is the
+default. An existing team Jira workflow can replace the Jira Create Issue
+node with Execute Workflow once its workflow is identified.
 
 ## Validator input — complete dossier
 
@@ -209,6 +227,7 @@ top-level fields remain present.
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `mode` | string | yes | `answer` before user delivery, or `ticket` before ticket creation. |
+| `request_id` | string | ticket mode | Copied verbatim into `Incident Overview` as `Case ID`. |
 | `user_text` | string | yes | Original user report; untrusted data. |
 | `language` | string | yes | User-facing language (`fr`, `en`, `ar`, `other`). |
 | `vision` | object or `null` | yes | Vision output from the schema above; untrusted evidence. |

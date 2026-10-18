@@ -1302,7 +1302,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const v=$input.first().json,d=v.sanitized_dossier;\nif(!d||d.mode!=='ticket'||!d.draft_ticket)throw new Error('Approved ticket dossier is missing');\nconst t=d.draft_ticket,requestId=String(d.request_id||'unknown');\nreturn [{json:{ticket_number:`SOL-${requestId.slice(0,8)}-${Date.now()}`,request_id:requestId,created_at:new Date().toISOString(),priority:t.priority,title:t.title,summary:t.summary,payload_json:JSON.stringify(d)}}];"
+        "jsCode": "const v=$input.first().json,d=v.sanitized_dossier;\nif(!d||d.mode!=='ticket'||!d.draft_ticket)throw new Error('Approved ticket dossier is missing');\nconst t=d.draft_ticket,requestId=String(d.request_id||'unknown');\nconst priorityIds={critical:'1',high:'2',medium:'3',low:'4'};\nconst priority=String(t.priority||'');\nif(!priorityIds[priority])throw new Error(`Unsupported ticket priority: ${priority}`);\nconst safeReason=String(v.reason||'Approved by the final Validator.')\n .replace(/\\b(password|passwd|pwd|secret|api[_ -]?key|access[_ -]?token|client[_ -]?secret)\\b(\\s*[:=]\\s*)[^\\s,;]+/gi,'$1$2[REDACTED]')\n .replace(/\\bBearer\\s+[A-Za-z0-9._~+/=-]{12,}/gi,'Bearer [REDACTED]');\nconst description=t.description.replace(/(Reason for Escalation\\n)([\\s\\S]*?)(\\n\\nSuggested Assignee Group: IT Support)/,\n  `$1$2\\n\\nValidator verdict: ${String(v.verdict||'approve')}\\nValidator reason: ${safeReason}$3`);\nreturn [{json:{summary:t.title,description,priority, jira_priority_id:priorityIds[priority],request_id:requestId}}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1311,36 +1311,53 @@
         -1150
       ],
       "id": "a45badd6-e55e-4c0e-b91e-c30873aead73",
-      "name": "Prepare approved ticket row"
+      "name": "Prepare Jira issue"
     },
     {
       "parameters": {
-        "resource": "row",
-        "operation": "insert",
-        "dataTableId": {
+        "resource": "issue",
+        "operation": "create",
+        "jiraVersion": "cloud",
+        "project": {
           "__rl": true,
-          "value": "solvey_tickets",
-          "mode": "name"
+          "value": "YOUR_PROJECT_KEY",
+          "mode": "list",
+          "cachedResultName": "YOUR_PROJECT_KEY"
         },
-        "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {}
+        "issueType": {
+          "__rl": true,
+          "value": "YOUR_ISSUE_TYPE_ID",
+          "mode": "id"
         },
-        "options": {}
+        "summary": "={{ $json.summary }}",
+        "additionalFields": {
+          "description": "={{ $json.description }}",
+          "priority": {
+            "__rl": true,
+            "value": "={{ $json.jira_priority_id }}",
+            "mode": "id"
+          }
+        }
       },
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
       "position": [
-        5820,
-        -1150
+        1580,
+        1100
       ],
-      "id": "5e3e370e-c08e-498e-8132-ad749467a509",
-      "name": "Create ticket in Data Table"
+      "id": "c8be0120-1a0d-4def-8640-574ecb45ddbe",
+      "name": "Create Jira issue",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "RESELECT_AFTER_IMPORT",
+          "name": "Jira SW Cloud API"
+        }
+      }
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({status:'ticket_created',ticket_number:$('Prepare approved ticket row').first().json.ticket_number}) }}",
+        "responseBody": "={{ JSON.stringify({status:'ticket_created',ticket_number:$json.key||$json.id}) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
@@ -1850,28 +1867,6 @@
         ]
       ]
     },
-    "Prepare approved ticket row": {
-      "main": [
-        [
-          {
-            "node": "Create ticket in Data Table",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create ticket in Data Table": {
-      "main": [
-        [
-          {
-            "node": "Respond ticket created",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "If": {
       "main": [
         [
@@ -2164,7 +2159,7 @@
       "main": [
         [
           {
-            "node": "Prepare approved ticket row",
+            "node": "Prepare Jira issue",
             "type": "main",
             "index": 0
           }
@@ -2200,7 +2195,7 @@
       "main": [
         [
           {
-            "node": "Prepare approved ticket row",
+            "node": "Prepare Jira issue",
             "type": "main",
             "index": 0
           }
@@ -2216,6 +2211,28 @@
     },
     "Fail closed on unapproved ticket": {
       "main": []
+    },
+    "Prepare Jira issue": {
+      "main": [
+        [
+          {
+            "node": "Create Jira issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Jira issue": {
+      "main": [
+        [
+          {
+            "node": "Respond ticket created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,

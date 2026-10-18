@@ -1,5 +1,6 @@
 {
   "mode": "ticket",
+  "request_id": "acct-1842",
   "user_text": "My work account was hacked. I also received an unexpected MFA approval prompt.",
   "language": "en",
   "vision": {
@@ -32,19 +33,9 @@
     "attempts": 0
   },
   "draft_ticket": {
-    "title": "Possible compromised account — unexpected MFA prompt",
-    "summary": "The user reports their work account may have been hacked and received an unexpected MFA approval request. No automated troubleshooting was performed.",
-    "evidence": [
-      {
-        "source": "user_report",
-        "detail": "Unexpected MFA approval request reported by the user."
-      }
-    ],
-    "attempted_steps": [],
-    "priority": "critical",
-    "suggested_actions_for_staff": [
-      "Review recent sign-in activity and follow the organization's account-compromise procedure."
-    ]
+    "title": "[Authentication & Access - Possible account compromise] Unexpected MFA approval prompt",
+    "description": "Incident Overview\nCase ID: acct-1842\nCategory: Authentication & Access\nPreserved Urgency (Priority): critical\nSummary: The user reports a possible account compromise and an unexpected MFA prompt.\n\nUser Request\nThe user asks for help securing the work account.\n\nVisual Findings & Terminal OCR\nApplication: Authenticator\nObservations: An unexpected sign-in approval request was reported.\nExact error text:\n```\nApprove sign-in?\n```\n\nRetrieved Technical Documentation (RAG)\nSources: None retrieved; human review is required for this sensitive incident.\nKey passage: Not applicable.\n\nAttempted Troubleshooting & Outcomes\nNo troubleshooting steps were attempted.\nUser reported feedback: Not provided.\n\nReason for Escalation\nThe user reports a potentially compromised account and unexpected MFA activity.\n\nSuggested Assignee Group: IT Support (informational only)",
+    "priority": "critical"
   },
   "attempt_counts": {
     "retry_retrieval": 0,

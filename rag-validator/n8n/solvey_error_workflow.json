@@ -15,7 +15,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const e=$input.first().json,execution=e.execution||{},workflow=e.workflow||{};\nconst number='ERR-'+String(execution.id||Date.now());\nreturn [{json:{ticket_number:number,request_id:number,created_at:new Date().toISOString(),priority:'high',title:'Automated support workflow failure',summary:`Workflow ${String(workflow.name||'unknown').slice(0,100)} failed; execution ${String(execution.id||'unknown')}. Review the secured n8n execution log. Error payload intentionally omitted.`,payload_json:JSON.stringify({status:'fallback',workflow:String(workflow.name||'unknown'),execution_id:String(execution.id||'unknown')})}}];"
+        "jsCode": "const e=$input.first().json,execution=e.execution||{},workflow=e.workflow||{};\nconst executionId=String(execution.id||'unknown');\nconst workflowName=String(workflow.name||'unknown').slice(0,100);\nconst priorityIds={high:'2'};\nreturn [{json:{summary:'[General - Workflow failure] Automated support workflow failure',priority:'high',jira_priority_id:priorityIds.high,\n description:`Incident Overview\\nCase ID: ERR-${executionId}\\nCategory: General\\nPreserved Urgency (Priority): high\\nSummary: Workflow ${workflowName} failed; execution ${executionId}. Error payload intentionally omitted.\\n\\nUser Request\\nAutomated workflow failure requires investigation.\\n\\nVisual Findings & Terminal OCR\\nNo visual input was processed.\\n\\nRetrieved Technical Documentation (RAG)\\nNo documentation retrieval was performed.\\n\\nAttempted Troubleshooting & Outcomes\\nNo automated troubleshooting steps are recorded.\\n\\nReason for Escalation\\nThe workflow failed; review the secured n8n execution log. Raw error and input payloads are omitted.\\n\\nSuggested Assignee Group: IT Support (informational only)`}}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -28,27 +28,44 @@
     },
     {
       "parameters": {
-        "resource": "row",
-        "operation": "insert",
-        "dataTableId": {
+        "resource": "issue",
+        "operation": "create",
+        "jiraVersion": "cloud",
+        "project": {
           "__rl": true,
-          "value": "solvey_tickets",
-          "mode": "name"
+          "value": "YOUR_PROJECT_KEY",
+          "mode": "list",
+          "cachedResultName": "YOUR_PROJECT_KEY"
         },
-        "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {}
+        "issueType": {
+          "__rl": true,
+          "value": "YOUR_ISSUE_TYPE_ID",
+          "mode": "id"
         },
-        "options": {}
+        "summary": "={{ $json.summary }}",
+        "additionalFields": {
+          "description": "={{ $json.description }}",
+          "priority": {
+            "__rl": true,
+            "value": "={{ $json.jira_priority_id }}",
+            "mode": "id"
+          }
+        }
       },
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
       "position": [
         760,
         300
       ],
-      "id": "e3333ce8-5efb-4b57-9035-c919d1dc9aaa",
-      "name": "Store fallback ticket"
+      "id": "d78a32ab-4609-49f5-8d07-13b0a181d58f",
+      "name": "Create Jira fallback issue",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "RESELECT_AFTER_IMPORT",
+          "name": "Jira SW Cloud API"
+        }
+      }
     }
   ],
   "connections": {
@@ -67,7 +84,7 @@
       "main": [
         [
           {
-            "node": "Store fallback ticket",
+            "node": "Create Jira fallback issue",
             "type": "main",
             "index": 0
           }

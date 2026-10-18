@@ -46,6 +46,10 @@ Checklist:
   empty. Judge whether the ticket accurately records known facts and attempted
   steps, rather than requiring a retrieved passage to justify creating a
   human-review ticket.
+- In ticket mode, does the Jira title use the category label and required
+  `[<Category> - <short problem>] <summary>` format? Are all seven required
+  description sections present and ordered, with Case ID, category, and
+  preserved urgency consistent with the dossier?
 - If a ticket contradicts the user report or Vision, request one ticket
   regeneration as `unfaithful_answer`; do not request retrieval just to fix a
   draft-ticket contradiction. Reserve `retry_retrieval` for missing or weak

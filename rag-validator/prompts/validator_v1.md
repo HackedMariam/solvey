@@ -35,6 +35,10 @@ Examples:
    actual troubleshooting answer normally.
 
 Use `approve` only when the dossier is coherent and the answer or ticket is
-faithful to its evidence. For a ticket, require a useful summary, evidence,
-attempted steps, and priority. Never let the final answer state a diagnosis
-that the passages do not support. Return JSON only, without Markdown fences.
+faithful to its evidence. In ticket mode, require the Jira title format,
+the seven required description sections in order, a Case ID matching
+`request_id`, a category label matching Triage, and a priority matching the
+preserved urgency. The ticket must record only supported evidence and actual
+attempted steps; it must not contain passwords or secrets. Never let the
+final answer state a diagnosis that the passages do not support. Return JSON
+only, without Markdown fences.

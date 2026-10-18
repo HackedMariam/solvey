@@ -47,6 +47,24 @@ _CATEGORY_HINTS: dict[str, tuple[str, ...]] = {
     "software_apps": ("office", "teams", "excel", "access app", "application", "installer", "install"),
     "system_os": ("windows", "driver", "device manager", "update", "bluetooth", "crash"),
 }
+_CATEGORY_LABELS = {
+    "network_vpn": "Network & VPN",
+    "auth_access": "Authentication & Access",
+    "email_communication": "Email & Communication",
+    "software_apps": "Software & Applications",
+    "system_os": "System & OS",
+    "general": "General",
+    "other": "Other",
+}
+_TICKET_SECTIONS = (
+    "Incident Overview",
+    "User Request",
+    "Visual Findings & Terminal OCR",
+    "Retrieved Technical Documentation (RAG)",
+    "Attempted Troubleshooting & Outcomes",
+    "Reason for Escalation",
+    "Suggested Assignee Group: IT Support",
+)
 _ALLOWED_URGENCY = {"low", "medium", "high", "critical"}
 _ALLOWED_MODES = {"answer", "ticket"}
 
@@ -843,7 +861,7 @@ def _check_ticket(dossier: dict[str, Any], stage_checks: dict[str, Any]) -> dict
             dossier,
         )
 
-    for field in ("title", "summary", "evidence", "attempted_steps", "priority", "suggested_actions_for_staff"):
+    for field in ("title", "description", "priority"):
         if field not in ticket:
             _issue(stage_checks, "ticket", f"missing required ticket field {field!r}")
             attempt_counts = dossier["attempt_counts"]
@@ -860,19 +878,75 @@ def _check_ticket(dossier: dict[str, Any], stage_checks: dict[str, Any]) -> dict
                 "Ticket regeneration limit reached.",
                 dossier,
             )
-    if not isinstance(ticket["title"], str) or not isinstance(ticket["summary"], str) or not ticket["summary"].strip():
-        return _inconsistent(dossier, stage_checks, "ticket", "title/summary", "must be non-empty strings")
     if (
-        not isinstance(ticket["evidence"], list)
-        or not isinstance(ticket["attempted_steps"], list)
-        or not isinstance(ticket["suggested_actions_for_staff"], list)
+        not isinstance(ticket["title"], str)
+        or not ticket["title"].strip()
+        or not isinstance(ticket["description"], str)
+        or not ticket["description"].strip()
     ):
-        return _inconsistent(
-            dossier, stage_checks, "ticket", "evidence/attempted_steps/suggested_actions_for_staff", "must be arrays"
-        )
+        return _inconsistent(dossier, stage_checks, "ticket", "title/description", "must be non-empty strings")
     if not isinstance(ticket["priority"], str) or ticket["priority"] not in {"low", "medium", "high", "critical"}:
         return _inconsistent(
             dossier, stage_checks, "ticket", "priority", "must be low, medium, high, or critical"
+        )
+    category_label = _CATEGORY_LABELS.get(dossier["triage"].get("category"))
+    if category_label is None:
+        return _inconsistent(dossier, stage_checks, "ticket", "triage.category", "has no ticket label mapping")
+    if not ticket["title"].startswith(f"[{category_label} - ") or "] " not in ticket["title"]:
+        _issue(stage_checks, "ticket", "title must use [<Category> - <short problem>] <summary>")
+        return _regenerate_result(
+            dossier, stage_checks, "incomplete_ticket", "ticket",
+            "Use the required Jira title format and the Triage category label.",
+            "Ticket title does not match the required category-labelled format.",
+        )
+    if ticket["priority"] != dossier["triage"].get("urgency"):
+        return _inconsistent(
+            dossier, stage_checks, "ticket", "draft_ticket.priority",
+            "must preserve triage.urgency",
+        )
+
+    description = ticket["description"]
+    section_positions = [description.find(section) for section in _TICKET_SECTIONS]
+    if any(position < 0 for position in section_positions) or section_positions != sorted(section_positions):
+        missing_or_out_of_order = next(
+            (
+                section
+                for index, section in enumerate(_TICKET_SECTIONS)
+                if section_positions[index] < 0
+                or (index > 0 and section_positions[index] <= section_positions[index - 1])
+            ),
+            _TICKET_SECTIONS[-1],
+        )
+        _issue(stage_checks, "ticket", f"required section missing or out of order: {missing_or_out_of_order}")
+        return _regenerate_result(
+            dossier, stage_checks, "incomplete_ticket", "ticket",
+            f"Include all required ticket sections in order; check {missing_or_out_of_order!r}.",
+            "Ticket description does not contain all required Jira sections in the required order.",
+        )
+    overview = description[:section_positions[1]]
+    required_lines = {
+        "Case ID": dossier.get("request_id"),
+        "Category": category_label,
+        "Preserved Urgency (Priority)": dossier["triage"].get("urgency"),
+    }
+    if not isinstance(dossier.get("request_id"), str) or not dossier["request_id"].strip():
+        return _inconsistent(dossier, stage_checks, "ticket", "request_id", "must be a non-empty string for Case ID")
+    for label, expected in required_lines.items():
+        actual_line = next(
+            (line.partition(":")[2].strip() for line in overview.splitlines() if line.startswith(f"{label}:")),
+            None,
+        )
+        if actual_line != expected:
+            return _inconsistent(
+                dossier, stage_checks, "ticket", f"draft_ticket.description.{label}",
+                f"must exactly match {expected!r}",
+            )
+    if not any(line.startswith("Summary:") and line.partition(":")[2].strip() for line in overview.splitlines()):
+        _issue(stage_checks, "ticket", "Incident Overview is missing a non-empty Summary")
+        return _regenerate_result(
+            dossier, stage_checks, "incomplete_ticket", "ticket",
+            "Add a concise non-empty Summary to Incident Overview.",
+            "Ticket Incident Overview has no summary.",
         )
     return None
 

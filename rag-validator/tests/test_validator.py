@@ -144,25 +144,27 @@ def test_invalid_source_ids_request_regeneration():
 
 def test_ticket_secrets_are_redacted_and_reported():
     dossier = _ticket_dossier()
-    dossier["draft_ticket"]["summary"] += " Password: SuperSecret777!"
+    dossier["draft_ticket"]["description"] += "\nPassword: SuperSecret777!"
 
     result = validate_dossier(dossier, judge=ApproveJudge())
 
     assert result["verdict"] == "regenerate"
     assert result["failure_type"] == "leak"
-    assert "SuperSecret777!" not in result["sanitized_dossier"]["draft_ticket"]["summary"]
-    assert "[REDACTED]" in result["sanitized_dossier"]["draft_ticket"]["summary"]
+    assert "SuperSecret777!" not in result["sanitized_dossier"]["draft_ticket"]["description"]
+    assert "[REDACTED]" in result["sanitized_dossier"]["draft_ticket"]["description"]
 
 
-def test_ticket_missing_required_field_regenerates_once():
+def test_ticket_missing_required_section_regenerates_once():
     dossier = _ticket_dossier()
-    del dossier["draft_ticket"]["evidence"]
+    dossier["draft_ticket"]["description"] = dossier["draft_ticket"]["description"].replace(
+        "Suggested Assignee Group: IT Support (informational only)", ""
+    )
 
     result = validate_dossier(dossier, judge=ApproveJudge())
 
     assert result["verdict"] == "regenerate"
     assert result["failure_type"] == "incomplete_ticket"
-    assert "evidence" in result["feedback_for_stage"]
+    assert "Suggested Assignee Group: IT Support" in result["feedback_for_stage"]
 
 
 def test_ticket_sensitive_incident_can_be_validated_before_creation():
@@ -171,6 +173,46 @@ def test_ticket_sensitive_incident_can_be_validated_before_creation():
     assert result["verdict"] == "approve"
     assert result["failure_type"] is None
     assert result["sanitized_dossier"]["draft_ticket"]["priority"] == "critical"
+
+
+def test_ticket_case_id_category_and_urgency_match_dossier():
+    dossier = _ticket_dossier()
+    dossier["draft_ticket"]["description"] = dossier["draft_ticket"]["description"].replace(
+        "Preserved Urgency (Priority): critical", "Preserved Urgency (Priority): medium"
+    )
+
+    result = validate_dossier(dossier, judge=ApproveJudge())
+
+    assert result["verdict"] == "escalate"
+    assert result["failure_type"] == "inconsistent_pipeline"
+    assert "draft_ticket.description.Preserved Urgency (Priority)" in result["feedback_for_stage"]
+
+
+def test_ticket_sections_must_appear_in_the_required_order():
+    dossier = _ticket_dossier()
+    text = dossier["draft_ticket"]["description"]
+    text = text.replace(
+        "User Request\nThe user asks for help securing the work account.",
+        "Retrieved Technical Documentation (RAG)\nSources: None retrieved.\n\n"
+        "User Request\nThe user asks for help securing the work account.",
+    )
+    dossier["draft_ticket"]["description"] = text
+
+    result = validate_dossier(dossier, judge=ApproveJudge())
+
+    assert result["verdict"] == "regenerate"
+    assert result["failure_type"] == "incomplete_ticket"
+
+
+def test_partially_masked_password_in_ticket_is_redacted():
+    dossier = _ticket_dossier()
+    dossier["draft_ticket"]["description"] += "\nPassword: Pa****word42"
+
+    result = validate_dossier(dossier, judge=ApproveJudge())
+
+    assert result["verdict"] == "regenerate"
+    assert result["failure_type"] == "leak"
+    assert "Pa****word42" not in result["sanitized_dossier"]["draft_ticket"]["description"]
 
 
 def test_final_message_personal_data_is_redacted_and_regenerated():
@@ -187,14 +229,14 @@ def test_final_message_personal_data_is_redacted_and_regenerated():
 
 def test_leak_after_regeneration_limit_escalates():
     dossier = _ticket_dossier()
-    dossier["draft_ticket"]["summary"] += " Password: SuperSecret777!"
+    dossier["draft_ticket"]["description"] += " Password: SuperSecret777!"
     dossier["attempt_counts"] = {"retry_retrieval": 0, "regenerate": 1, "total": 1}
 
     result = validate_dossier(dossier, judge=ApproveJudge())
 
     assert result["verdict"] == "escalate"
     assert result["failure_type"] == "leak"
-    assert "SuperSecret777!" not in result["sanitized_dossier"]["draft_ticket"]["summary"]
+    assert "SuperSecret777!" not in result["sanitized_dossier"]["draft_ticket"]["description"]
 
 
 def test_malformed_unhashable_fields_escalate_instead_of_crashing():
@@ -233,9 +275,7 @@ def test_hard_case_overlays_resolve_to_complete_dossiers():
     masked_password = next(
         case for case in cases if case["case_id"] == "ticket-partially-masked-password"
     )
-    assert masked_password["dossier"]["draft_ticket"]["summary"].startswith(
-        "The user entered password: Pa****word42"
-    )
+    assert "password: Pa****word42" in masked_password["dossier"]["draft_ticket"]["description"]
     injection = next(case for case in cases if case["case_id"] == "ocr-hidden-prompt-injection")
     assert injection["dossier"]["vision"]["observations"][0].startswith("Tiny extracted text")
 
