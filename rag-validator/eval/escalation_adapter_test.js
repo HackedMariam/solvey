@@ -51,16 +51,38 @@ assert.ok(converted.draft_ticket.description.includes("Approve sign-in?"));
 
 const adapterWorkflow = JSON.parse(fs.readFileSync(path.join(root, "n8n", "escalation_agent.json"), "utf8"));
 const requestNode = adapterWorkflow.nodes.find((node) => node.name === "Request colleague ticket draft (no Jira)");
-assert.equal(requestNode.parameters.url, "https://YOUR-ESCALATION-SERVICE/format-preview");
+assert.equal(requestNode.parameters.url, "={{ $('Escalation Endpoint Config').first().json.format_preview_url }}");
 assert.equal(requestNode.parameters.method, "POST");
+assert.equal(requestNode.parameters.options.timeout, 30000);
+assert.equal(requestNode.onError, "continueErrorOutput");
 assert.ok(!adapterWorkflow.nodes.some((node) => node.type.includes("jira")));
+const endpointConfig = adapterWorkflow.nodes.find((node) => node.name === "Escalation Endpoint Config");
+assert.equal(endpointConfig.parameters.assignments.assignments.length, 1);
+assert.equal(endpointConfig.parameters.assignments.assignments[0].name, "format_preview_url");
+assert.equal(endpointConfig.parameters.assignments.assignments[0].value, "https://YOUR-ESCALATION-SERVICE/format-preview");
+assert.deepEqual(
+  adapterWorkflow.connections["Request colleague ticket draft (no Jira)"].main[1].map((target) => target.node),
+  ["Prepare local Ticket Agent fallback"],
+);
+assert.equal(
+  adapterWorkflow.connections["Prepare local Ticket Agent fallback"].main[0][0].node,
+  "Call local Ticket Agent fallback",
+);
+assert.equal(
+  adapterWorkflow.nodes.find((node) => node.name === "Call local Ticket Agent fallback").parameters.workflowId.cachedResultName,
+  "Ticket Agent",
+);
 
 const mainWorkflow = JSON.parse(fs.readFileSync(path.join(root, "n8n", "solvey_main.json"), "utf8"));
 for (const name of ["Call Colleague Escalation Agent", "Regenerate Ticket Once with Colleague Agent"]) {
   const call = mainWorkflow.nodes.find((node) => node.name === name);
   assert.ok(call, `missing Execute Workflow node: ${name}`);
   assert.equal(call.parameters.workflowId.cachedResultName, "Colleague Escalation Agent adapter (draft only)");
+  assert.equal(
+    mainWorkflow.connections[name].main[0][0].node,
+    name === "Call Colleague Escalation Agent" ? "Call Validator (ticket)" : "Call Validator (ticket retry)",
+  );
 }
 
-console.log("Escalation adapter conversion and workflow routing passed.");
+console.log("Escalation adapter conversion, timeout fallback, and Validator routing passed.");
 console.log(JSON.stringify(converted));

@@ -16,27 +16,51 @@
     },
     {
       "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d7196935-bbc4-5d14-9d9c-6879bb3e9853",
+              "name": "format_preview_url",
+              "value": "https://YOUR-ESCALATION-SERVICE/format-preview",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "fea2974f-61ff-5a3c-b2ed-5b13ddad2c62",
+      "name": "Escalation Endpoint Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const CATEGORY_LABELS = {\n  network_vpn: \"Network & VPN\",\n  auth_access: \"Authentication & Access\",\n  email_communication: \"Email & Communication\",\n  software_apps: \"Software & Applications\",\n  system_os: \"System & OS\",\n  general: \"General\",\n  other: \"Other / out of scope\",\n};\nconst SUBCATEGORY_LABELS = {\n  vpn_auth_failure: \"VPN authentication failure\",\n  vpn_connection_failure: \"VPN connection failure\",\n  wifi_connectivity: \"Wi-Fi connectivity issue\",\n  dns_network_config: \"DNS/network configuration error\",\n  internet_connection: \"Internet connection problem\",\n  wrong_expired_password: \"Wrong/expired password\",\n  account_locked: \"Account locked\",\n  mfa_failure: \"MFA/authentication failure\",\n  permission_denied: \"Permission denied\",\n  restricted_resource_access: \"Access to restricted resource\",\n  cannot_send_email: \"Cannot send email\",\n  cannot_receive_email: \"Cannot receive email\",\n  email_auth_failure: \"Email authentication failure\",\n  mailbox_full: \"Mailbox/storage full\",\n  email_client_config: \"Email client configuration problem\",\n  app_wont_launch: \"Application won't launch\",\n  app_crash: \"Application crash\",\n  installation_failure: \"Installation failure\",\n  app_config_error: \"Application configuration error\",\n  software_update_failure: \"Software update failure\",\n  system_error: \"Windows/system error\",\n  driver_problem: \"Driver problem\",\n  os_update_failure: \"OS update failure\",\n  performance_issue: \"System performance issue\",\n  hardware_error: \"Hardware-related error\",\n  out_of_scope: \"Out of scope\",\n};\n\nfunction toColleagueInput(dossier) {\n  if (!dossier || dossier.mode !== \"ticket\") throw new Error(\"Escalation adapter requires a ticket-mode dossier\");\n  const vision = dossier.vision;\n  const triage = dossier.triage || {};\n  const retrieval = dossier.retrieval || {};\n  const observations = Array.isArray(vision?.observations) ? vision.observations : [];\n  const steps = Array.isArray(dossier.attempted_actions)\n    ? dossier.attempted_actions\n    : Array.isArray(dossier.resolution?.attempted_steps) ? dossier.resolution.attempted_steps : [];\n  return {\n    case_id: String(dossier.request_id || \"\"),\n    user_request: String(dossier.user_text || \"\"),\n    vision_findings: vision ? {\n      observations,\n      extracted_text: [vision.error_text, vision.error_code].filter((value) => typeof value === \"string\" && value).join(\"\\n\") || null,\n      confidence: typeof vision.confidence === \"number\" ? vision.confidence : null,\n    } : null,\n    triage: {\n      category: CATEGORY_LABELS[triage.category] || \"Other / out of scope\",\n      subcategory: SUBCATEGORY_LABELS[triage.subcategory] || \"Out of scope\",\n      urgency: [\"low\", \"medium\", \"high\", \"critical\"].includes(triage.urgency) ? triage.urgency : \"medium\",\n      confidence: typeof triage.confidence === \"number\" ? triage.confidence : null,\n    },\n    rag: {\n      status: Array.isArray(retrieval.chunks) && retrieval.chunks.length ? \"documents_found\" : \"no_documents_found\",\n      document_count: Array.isArray(retrieval.chunks) ? retrieval.chunks.length : 0,\n      sources: (retrieval.chunks || []).map((chunk) => [chunk.title, chunk.source].filter(Boolean).join(\" — \")),\n      findings: (retrieval.chunks || []).map((chunk) => chunk.text || chunk.table_raw || \"\").filter(Boolean),\n    },\n    resolution: {\n      status: steps.length ? \"failed\" : null,\n      attempted_steps: steps.map((step) => typeof step === \"string\" ? step : `${step.step || step.action || \"Action\"} (Status: ${step.status || \"reported\"})`),\n      user_feedback: dossier.user_feedback || dossier.resolution?.user_feedback || null,\n    },\n    escalation: {\n      required: true,\n      reason: String(dossier.ticket_reason || dossier.feedback_for_stage || \"Escalation requested by the support workflow.\"),\n    },\n  };\n}\n\nfunction toValidatorDossier(response, original) {\n  if (!response || response.status !== \"success\" || !response.synthesized_ticket) {\n    throw new Error(`Escalation agent did not return a ticket draft (status=${response?.status || \"missing\"})`);\n  }\n  const ticket = response.synthesized_ticket;\n  const triage = original.triage || {};\n  const categoryLabel = CATEGORY_LABELS[triage.category] || \"Other / out of scope\";\n  const priority = [\"low\", \"medium\", \"high\", \"critical\"].includes(triage.urgency) ? triage.urgency : \"medium\";\n  const ticketSummary = String(ticket.summary || ticket.ticket_title || \"Escalated support incident\").trim();\n  const generatedTitle = String(ticket.ticket_title || \"\").trim();\n  const title = generatedTitle.startsWith(`[${categoryLabel} - `) && generatedTitle.includes(\"] \")\n    ? generatedTitle\n    : `[${categoryLabel} - ${(generatedTitle || triage.problem_type || \"Support incident\").slice(0, 64)}] ${ticketSummary}`;\n  const vision = original.vision;\n  const retrievalChunks = Array.isArray(original.retrieval?.chunks) ? original.retrieval.chunks : [];\n  const attempted = Array.isArray(ticket.attempted_actions) && ticket.attempted_actions.length\n    ? ticket.attempted_actions\n    : Array.isArray(original.attempted_actions) ? original.attempted_actions : [];\n  const attempts = attempted.length\n    ? attempted.map((step) => typeof step === \"string\" ? step : `${step.step || step.action || \"Action\"} (Status: ${step.status || \"reported\"})`).join(\"\\n\")\n    : \"No troubleshooting steps were reported.\";\n  const userFeedback = original.user_feedback || original.resolution?.user_feedback || \"Not provided.\";\n  const visualText = typeof vision?.error_text === \"string\" && vision.error_text\n    ? vision.error_text\n    : \"Not provided.\";\n  const sources = retrievalChunks.length\n    ? retrievalChunks.map((chunk, index) => {\n      const provenance = [chunk.title || `Source ${index + 1}`, chunk.source, chunk.url].filter(Boolean).join(\" — \");\n      return `${provenance}\\nKey passage: ${chunk.table_raw || chunk.text || \"No passage text provided.\"}`;\n    }).join(\"\\n\\n\")\n    : \"No technical documentation was retrieved.\";\n  const rationale = String(ticket.escalation_reason || original.ticket_reason || \"Human review was requested.\");\n  const description = [\n    \"Incident Overview\",\n    `Case ID: ${String(original.request_id || response.case_id || \"unknown\")}`,\n    `Category: ${categoryLabel}`,\n    `Preserved Urgency (Priority): ${priority}`,\n    `Summary: ${ticketSummary}`,\n    \"\",\n    \"User Request\",\n    String(original.user_text || \"Not provided.\"),\n    \"\",\n    \"Visual Findings & Terminal OCR\",\n    `Application: ${vision?.application || \"Not visible\"}`,\n    `Observations: ${(vision?.observations || []).join(\"; \") || \"None reported.\"}`,\n    \"Exact error text:\",\n    \"```\",\n    visualText,\n    \"```\",\n    \"\",\n    \"Retrieved Technical Documentation (RAG)\",\n    `Sources and key passages:\\n${sources}`,\n    \"\",\n    \"Attempted Troubleshooting & Outcomes\",\n    attempts,\n    `User reported feedback: ${userFeedback}`,\n    \"\",\n    \"Reason for Escalation\",\n    rationale,\n    \"\",\n    \"Suggested Assignee Group: IT Support (informational only)\",\n  ].join(\"\\n\");\n  return {\n    ...original,\n    request_id: String(original.request_id || response.case_id || \"\"),\n    draft_ticket: { title, description, priority },\n  };\n}\nconst dossier=$input.first().json; return [{json:{dossier,colleague_input:toColleagueInput(dossier)}}];"
+        "jsCode": "const CATEGORY_LABELS = {\n  network_vpn: \"Network & VPN\",\n  auth_access: \"Authentication & Access\",\n  email_communication: \"Email & Communication\",\n  software_apps: \"Software & Applications\",\n  system_os: \"System & OS\",\n  general: \"General\",\n  other: \"Other / out of scope\",\n};\nconst SUBCATEGORY_LABELS = {\n  vpn_auth_failure: \"VPN authentication failure\",\n  vpn_connection_failure: \"VPN connection failure\",\n  wifi_connectivity: \"Wi-Fi connectivity issue\",\n  dns_network_config: \"DNS/network configuration error\",\n  internet_connection: \"Internet connection problem\",\n  wrong_expired_password: \"Wrong/expired password\",\n  account_locked: \"Account locked\",\n  mfa_failure: \"MFA/authentication failure\",\n  permission_denied: \"Permission denied\",\n  restricted_resource_access: \"Access to restricted resource\",\n  cannot_send_email: \"Cannot send email\",\n  cannot_receive_email: \"Cannot receive email\",\n  email_auth_failure: \"Email authentication failure\",\n  mailbox_full: \"Mailbox/storage full\",\n  email_client_config: \"Email client configuration problem\",\n  app_wont_launch: \"Application won't launch\",\n  app_crash: \"Application crash\",\n  installation_failure: \"Installation failure\",\n  app_config_error: \"Application configuration error\",\n  software_update_failure: \"Software update failure\",\n  system_error: \"Windows/system error\",\n  driver_problem: \"Driver problem\",\n  os_update_failure: \"OS update failure\",\n  performance_issue: \"System performance issue\",\n  hardware_error: \"Hardware-related error\",\n  out_of_scope: \"Out of scope\",\n};\n\nfunction toColleagueInput(dossier) {\n  if (!dossier || dossier.mode !== \"ticket\") throw new Error(\"Escalation adapter requires a ticket-mode dossier\");\n  const vision = dossier.vision;\n  const triage = dossier.triage || {};\n  const retrieval = dossier.retrieval || {};\n  const observations = Array.isArray(vision?.observations) ? vision.observations : [];\n  const steps = Array.isArray(dossier.attempted_actions)\n    ? dossier.attempted_actions\n    : Array.isArray(dossier.resolution?.attempted_steps) ? dossier.resolution.attempted_steps : [];\n  return {\n    case_id: String(dossier.request_id || \"\"),\n    user_request: String(dossier.user_text || \"\"),\n    vision_findings: vision ? {\n      observations,\n      extracted_text: [vision.error_text, vision.error_code].filter((value) => typeof value === \"string\" && value).join(\"\\n\") || null,\n      confidence: typeof vision.confidence === \"number\" ? vision.confidence : null,\n    } : null,\n    triage: {\n      category: CATEGORY_LABELS[triage.category] || \"Other / out of scope\",\n      subcategory: SUBCATEGORY_LABELS[triage.subcategory] || \"Out of scope\",\n      urgency: [\"low\", \"medium\", \"high\", \"critical\"].includes(triage.urgency) ? triage.urgency : \"medium\",\n      confidence: typeof triage.confidence === \"number\" ? triage.confidence : null,\n    },\n    rag: {\n      status: Array.isArray(retrieval.chunks) && retrieval.chunks.length ? \"documents_found\" : \"no_documents_found\",\n      document_count: Array.isArray(retrieval.chunks) ? retrieval.chunks.length : 0,\n      sources: (retrieval.chunks || []).map((chunk) => [chunk.title, chunk.source].filter(Boolean).join(\" — \")),\n      findings: (retrieval.chunks || []).map((chunk) => chunk.text || chunk.table_raw || \"\").filter(Boolean),\n    },\n    resolution: {\n      status: steps.length ? \"failed\" : null,\n      attempted_steps: steps.map((step) => typeof step === \"string\" ? step : `${step.step || step.action || \"Action\"} (Status: ${step.status || \"reported\"})`),\n      user_feedback: dossier.user_feedback || dossier.resolution?.user_feedback || null,\n    },\n    escalation: {\n      required: true,\n      reason: String(dossier.ticket_reason || dossier.feedback_for_stage || \"Escalation requested by the support workflow.\"),\n    },\n  };\n}\n\nfunction toValidatorDossier(response, original) {\n  if (!response || response.status !== \"success\" || !response.synthesized_ticket) {\n    throw new Error(`Escalation agent did not return a ticket draft (status=${response?.status || \"missing\"})`);\n  }\n  const ticket = response.synthesized_ticket;\n  const triage = original.triage || {};\n  const categoryLabel = CATEGORY_LABELS[triage.category] || \"Other / out of scope\";\n  const priority = [\"low\", \"medium\", \"high\", \"critical\"].includes(triage.urgency) ? triage.urgency : \"medium\";\n  const ticketSummary = String(ticket.summary || ticket.ticket_title || \"Escalated support incident\").trim();\n  const generatedTitle = String(ticket.ticket_title || \"\").trim();\n  const title = generatedTitle.startsWith(`[${categoryLabel} - `) && generatedTitle.includes(\"] \")\n    ? generatedTitle\n    : `[${categoryLabel} - ${(generatedTitle || triage.problem_type || \"Support incident\").slice(0, 64)}] ${ticketSummary}`;\n  const vision = original.vision;\n  const retrievalChunks = Array.isArray(original.retrieval?.chunks) ? original.retrieval.chunks : [];\n  const attempted = Array.isArray(ticket.attempted_actions) && ticket.attempted_actions.length\n    ? ticket.attempted_actions\n    : Array.isArray(original.attempted_actions) ? original.attempted_actions : [];\n  const attempts = attempted.length\n    ? attempted.map((step) => typeof step === \"string\" ? step : `${step.step || step.action || \"Action\"} (Status: ${step.status || \"reported\"})`).join(\"\\n\")\n    : \"No troubleshooting steps were reported.\";\n  const userFeedback = original.user_feedback || original.resolution?.user_feedback || \"Not provided.\";\n  const visualText = typeof vision?.error_text === \"string\" && vision.error_text\n    ? vision.error_text\n    : \"Not provided.\";\n  const sources = retrievalChunks.length\n    ? retrievalChunks.map((chunk, index) => {\n      const provenance = [chunk.title || `Source ${index + 1}`, chunk.source, chunk.url].filter(Boolean).join(\" — \");\n      return `${provenance}\\nKey passage: ${chunk.table_raw || chunk.text || \"No passage text provided.\"}`;\n    }).join(\"\\n\\n\")\n    : \"No technical documentation was retrieved.\";\n  const rationale = String(ticket.escalation_reason || original.ticket_reason || \"Human review was requested.\");\n  const description = [\n    \"Incident Overview\",\n    `Case ID: ${String(original.request_id || response.case_id || \"unknown\")}`,\n    `Category: ${categoryLabel}`,\n    `Preserved Urgency (Priority): ${priority}`,\n    `Summary: ${ticketSummary}`,\n    \"\",\n    \"User Request\",\n    String(original.user_text || \"Not provided.\"),\n    \"\",\n    \"Visual Findings & Terminal OCR\",\n    `Application: ${vision?.application || \"Not visible\"}`,\n    `Observations: ${(vision?.observations || []).join(\"; \") || \"None reported.\"}`,\n    \"Exact error text:\",\n    \"```\",\n    visualText,\n    \"```\",\n    \"\",\n    \"Retrieved Technical Documentation (RAG)\",\n    `Sources and key passages:\\n${sources}`,\n    \"\",\n    \"Attempted Troubleshooting & Outcomes\",\n    attempts,\n    `User reported feedback: ${userFeedback}`,\n    \"\",\n    \"Reason for Escalation\",\n    rationale,\n    \"\",\n    \"Suggested Assignee Group: IT Support (informational only)\",\n  ].join(\"\\n\");\n  return {\n    ...original,\n    request_id: String(original.request_id || response.case_id || \"\"),\n    draft_ticket: { title, description, priority },\n  };\n}\nconst dossier=$('Execute Workflow Trigger').first().json; return [{json:{dossier,colleague_input:toColleagueInput(dossier)}}];"
       },
       "id": "5b9522a0-de1b-508c-95f7-b4336117fcb1",
       "name": "Prepare colleague escalation input",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
+        640,
         300
       ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://YOUR-ESCALATION-SERVICE/format-preview",
+        "url": "={{ $('Escalation Endpoint Config').first().json.format_preview_url }}",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ $json.colleague_input }}",
         "options": {
-          "timeout": 120000
+          "timeout": 30000
         }
       },
       "id": "7c7abcb9-1de8-5e74-b3c8-024c1b99febf",
@@ -44,10 +68,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        740,
+        920,
         300
       ],
-      "onError": "stopWorkflow"
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -59,13 +83,63 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1000,
-        300
+        1200,
+        220
       ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const dossier=$('Prepare colleague escalation input').first().json.dossier;\nreturn [{json:dossier}];"
+      },
+      "id": "67074d8c-62a6-5188-87fc-69fe0b26c8b6",
+      "name": "Prepare local Ticket Agent fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Ticket Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "1ccb3670-7d45-5fc6-8ac7-b2c4624be569",
+      "name": "Call local Ticket Agent fallback",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1460,
+        440
+      ],
+      "onError": "stopWorkflow"
     }
   ],
   "connections": {
     "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Escalation Endpoint Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalation Endpoint Config": {
       "main": [
         [
           {
@@ -92,6 +166,24 @@
         [
           {
             "node": "Convert generated ticket to Validator dossier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare local Ticket Agent fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare local Ticket Agent fallback": {
+      "main": [
+        [
+          {
+            "node": "Call local Ticket Agent fallback",
             "type": "main",
             "index": 0
           }

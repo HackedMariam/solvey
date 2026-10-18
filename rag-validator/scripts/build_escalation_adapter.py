@@ -28,35 +28,80 @@ def code_node(name: str, position: list[int], js_code: str) -> dict:
 
 def main() -> None:
     source = ADAPTER_SOURCE.read_text(encoding="utf-8").rstrip()
+    endpoint_config = {
+        "parameters": {
+            "assignments": {
+                "assignments": [
+                    {
+                        "id": node_id("format-preview-url"),
+                        "name": "format_preview_url",
+                        "value": "https://YOUR-ESCALATION-SERVICE/format-preview",
+                        "type": "string",
+                    }
+                ]
+            },
+            "includeOtherFields": False,
+            "options": {},
+        },
+        "id": node_id("Escalation Endpoint Config"),
+        "name": "Escalation Endpoint Config",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.5,
+        "position": [420, 300],
+    }
     prepare = code_node(
         "Prepare colleague escalation input",
-        [480, 300],
+        [640, 300],
         source
-        + "\nconst dossier=$input.first().json; return [{json:{dossier,colleague_input:toColleagueInput(dossier)}}];",
+        + "\nconst dossier=$('Execute Workflow Trigger').first().json; return [{json:{dossier,colleague_input:toColleagueInput(dossier)}}];",
     )
     request = {
         "parameters": {
             "method": "POST",
-            "url": "https://YOUR-ESCALATION-SERVICE/format-preview",
+            "url": "={{ $('Escalation Endpoint Config').first().json.format_preview_url }}",
             "sendBody": True,
             "specifyBody": "json",
             "jsonBody": "={{ $json.colleague_input }}",
-            "options": {"timeout": 120000},
+            "options": {"timeout": 30000},
         },
         "id": node_id("Request colleague ticket draft"),
         "name": "Request colleague ticket draft (no Jira)",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.2,
-        "position": [740, 300],
-        "onError": "stopWorkflow",
+        "position": [920, 300],
+        "onError": "continueErrorOutput",
     }
     convert = code_node(
         "Convert generated ticket to Validator dossier",
-        [1000, 300],
+        [1200, 220],
         source
         + "\nconst response=$input.first().json; const original=$('Prepare colleague escalation input').first().json.dossier;"
         + "\nreturn [{json:toValidatorDossier(response,original)}];",
     )
+    fallback_input = code_node(
+        "Prepare local Ticket Agent fallback",
+        [1200, 440],
+        "const dossier=$('Prepare colleague escalation input').first().json.dossier;"
+        + "\nreturn [{json:dossier}];",
+    )
+    local_fallback = {
+        "parameters": {
+            "workflowId": {
+                "__rl": True,
+                "value": "RESELECT_AFTER_IMPORT",
+                "mode": "list",
+                "cachedResultName": "Ticket Agent",
+            },
+            "workflowInputs": {"mappingMode": "passthrough"},
+            "options": {"waitForSubWorkflow": True},
+        },
+        "id": node_id("Call local Ticket Agent fallback"),
+        "name": "Call local Ticket Agent fallback",
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.2,
+        "position": [1460, 440],
+        "onError": "stopWorkflow",
+    }
     workflow = {
         "name": "Colleague Escalation Agent adapter (draft only)",
         "nodes": [
@@ -68,14 +113,24 @@ def main() -> None:
                 "typeVersion": 1.1,
                 "position": [240, 300],
             },
+            endpoint_config,
             prepare,
             request,
             convert,
+            fallback_input,
+            local_fallback,
         ],
         "connections": {
-            "Execute Workflow Trigger": {"main": [[{"node": "Prepare colleague escalation input", "type": "main", "index": 0}]]},
+            "Execute Workflow Trigger": {"main": [[{"node": "Escalation Endpoint Config", "type": "main", "index": 0}]]},
+            "Escalation Endpoint Config": {"main": [[{"node": "Prepare colleague escalation input", "type": "main", "index": 0}]]},
             "Prepare colleague escalation input": {"main": [[{"node": "Request colleague ticket draft (no Jira)", "type": "main", "index": 0}]]},
-            "Request colleague ticket draft (no Jira)": {"main": [[{"node": "Convert generated ticket to Validator dossier", "type": "main", "index": 0}]]},
+            "Request colleague ticket draft (no Jira)": {
+                "main": [
+                    [{"node": "Convert generated ticket to Validator dossier", "type": "main", "index": 0}],
+                    [{"node": "Prepare local Ticket Agent fallback", "type": "main", "index": 0}],
+                ]
+            },
+            "Prepare local Ticket Agent fallback": {"main": [[{"node": "Call local Ticket Agent fallback", "type": "main", "index": 0}]]},
         },
         "active": False,
         "settings": {"executionOrder": "v1"},
@@ -105,7 +160,7 @@ def main() -> None:
                     if target["node"] == old_name:
                         target["node"] = new_name
     MAIN_PATH.write_text(json.dumps(main_workflow, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("Built colleague adapter and routed both primary and one-shot ticket regeneration through it.")
+    print("Built colleague adapter with 30-second local Ticket Agent fallback for draft and regeneration calls.")
 
 
 if __name__ == "__main__":

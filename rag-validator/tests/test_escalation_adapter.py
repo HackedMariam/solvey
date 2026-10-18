@@ -23,7 +23,7 @@ def test_colleague_escalation_adapter_conversion_and_workflow_routing():
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "Escalation adapter conversion and workflow routing passed." in result.stdout
+    assert "Escalation adapter conversion, timeout fallback, and Validator routing passed." in result.stdout
     converted_dossier = json.loads(result.stdout.splitlines()[-1])
     decision = validate_dossier(converted_dossier, judge=_ApproveJudge())
     assert decision["verdict"] == "approve"
