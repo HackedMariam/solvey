@@ -1,0 +1,133 @@
+{"subcategory": "System performance issue", "title": "Laptop very slow", "description": "My laptop has become extremely slow since last week, it takes 10 minutes to start and programs freeze. Windows 11, about 3 years old."}
+{"subcategory": "System performance issue", "title": "", "description": "pc super slow after windows update yesterday, everything lags"}
+{"subcategory": "System performance issue", "title": "100% disk usage", "description": "Task Manager shows disk at 100% all the time and my office PC is barely usable. I didn't install anything new."}
+{"subcategory": "System performance issue", "title": "Computer freezes randomly", "description": "My desktop freezes completely a few times a day, mouse doesn't move, I have to hold the power button. No error message."}
+{"subcategory": "System performance issue", "title": "Laptop overheating and slow", "description": "My laptop gets very hot and the fan is loud all the time, and it becomes slow when hot. Even when I'm only browsing."}
+{"subcategory": "System performance issue", "title": "Lab PCs slow to log in", "description": "Logging in to the computers in lab 1 takes 5-7 minutes. Students lose half the practical session waiting."}
+{"subcategory": "System performance issue", "title": "", "description": "Hello, my MacBook is very slow since I updated to the new macOS. The spinning wheel appears all the time."}
+{"subcategory": "System performance issue", "title": "Memory usage high", "description": "My PC shows 95% memory used with just a browser and Word open. It has 8 GB RAM. Is something running in the background?"}
+{"subcategory": "System performance issue", "title": "Start-up takes forever", "description": "Turning on my work laptop takes 15 minutes before I can do anything. It shows 'Please wait' for a long time."}
+{"subcategory": "System performance issue", "title": "Computer slow, might be a virus?", "description": "My computer suddenly became slow and pop-ups appear. I'm worried I have a virus. What should I do?"}
+{"subcategory": "System performance issue", "title": "Lecture PC lag", "description": "The PC in lecture hall A3 is so slow that videos stutter and slides take seconds to change. Please check it."}
+{"subcategory": "System performance issue", "title": "", "description": "laptop battery drains in 1 hour and the laptop is slow on battery, on charger its normal"}
+{"subcategory": "System performance issue", "title": "Shutdown takes very long", "description": "My PC takes 20 minutes to shut down, stuck on 'Shutting down'. I usually have to force it off."}
+{"subcategory": "System performance issue", "title": "Low disk space warning", "description": "Windows keeps saying 'Low disk space on C:' and the computer is slow. I don't know what to delete safely."}
+{"subcategory": "System performance issue", "title": "Linux workstation slow", "description": "My Ubuntu workstation in the lab has become very slow, top shows a process called tracker-miner using 100% CPU."}
+{"subcategory": "System performance issue", "title": "Explorer not responding", "description": "File Explorer goes 'Not responding' whenever I open a folder. Opening files takes a minute."}
+{"subcategory": "System performance issue", "title": "", "description": "Dear IT, my office computer is 7 years old and can no longer run the software I need. Is it possible to get a replacement or upgrade?"}
+{"subcategory": "System performance issue", "title": "Fan noise and CPU at 100%", "description": "CPU usage is 100% all the time, process 'Antimalware Service Executable'. The fan is very loud during my lectures."}
+{"subcategory": "System performance issue", "title": "Mac storage almost full", "description": "My Mac says 'Your disk is almost full' and 'System Data' takes 150 GB. I don't know what that is."}
+{"subcategory": "System performance issue", "title": "Typing delay", "description": "When I type there's a delay of 1-2 seconds before letters appear, in every program. Started this week."}
+{"subcategory": "System performance issue", "title": "", "description": "computer in the library annex keeps freezing for a few seconds every minute"}
+{"subcategory": "System performance issue", "title": "Slow after joining domain", "description": "My laptop became much slower after IT joined it to the university domain. Many new background programs appeared."}
+{"subcategory": "System performance issue", "title": "Thin client slow", "description": "The thin client terminal at the student help desk is very slow, and sometimes disconnects from the virtual desktop."}
+{"subcategory": "System performance issue", "title": "Windows search uses all resources", "description": "Search Indexer uses a lot of CPU and disk all day. My computer is slow while it runs."}
+{"subcategory": "System performance issue", "title": "Laptop slow on video calls", "description": "During video calls my laptop becomes so slow everything freezes, even when only the meeting is open."}
+{"subcategory": "System performance issue", "title": "", "description": "pc restarts on its own sometimes when it's slow, no warning"}
+{"subcategory": "System performance issue", "title": "Graphics workstation lag", "description": "The graphics workstation in the architecture studio lags heavily when rotating 3D models, it used to be smooth."}
+{"subcategory": "System performance issue", "title": "Performance after malware scan", "description": "The antivirus found and removed something last week, and since then my laptop is slower than before. Is it clean now?"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Blue screen error", "description": "My laptop showed a blue screen with 'CRITICAL_PROCESS_DIED' and restarted. It happened three times today."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "", "description": "windows says 'preparing automatic repair' and then nothing, cant get to desktop"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Black screen after login", "description": "After I log in on my office PC, the screen stays black with just the mouse cursor. Ctrl+Alt+Del works."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Windows not activated", "description": "My university laptop shows 'Activate Windows' in the corner and some settings are locked. It was activated before."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Temporary profile", "description": "When I log in, Windows says 'You've been signed in with a temporary profile' and my desktop files are missing."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Linux won't boot", "description": "My Ubuntu laptop stops at a black screen with 'grub rescue>' after the latest update. I have my thesis on it."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "", "description": "Hello, my Mac shows a circle with a line through it at startup and won't boot. What does this mean?"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Start menu not working", "description": "The Start menu and the search bar don't open when I click them. Taskbar icons work."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Error 'Group Policy Client service failed the sign-in'", "description": "I can't log in to my PC: 'The Group Policy Client service failed the sign-in. Access is denied.' Other users can log in on it."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Files disappeared from desktop", "description": "All the files on my desktop disappeared after a restart. Is there a way to get them back?"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Boot loop", "description": "My laptop keeps restarting before reaching the login screen, the logo appears and then it restarts again."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "", "description": "getting a message 'your device ran into a problem and needs to restart' every time i open a big file"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Clock wrong on PC", "description": "My computer's clock is wrong by 2 hours and resets after every restart. Websites show certificate errors because of it."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "BitLocker recovery key", "description": "My laptop asks for a BitLocker recovery key at startup. I never set this up. How do I get the key?"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Mac kernel panic", "description": "My MacBook restarts with 'Your computer restarted because of a problem' several times a week."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Can't open settings", "description": "The Windows Settings app opens and closes immediately. I can't change anything."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "", "description": "Dear support, the lab PC number 22 shows 'Operating System not found' when started."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "USB drive not recognized by OS", "description": "No USB stick works on my office PC anymore, they don't appear in File Explorer. They work on other computers."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Display scaling broken", "description": "Everything on my screen is huge after a restart, icons and text are enormous. Resolution options are greyed out."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Ubuntu read-only file system", "description": "My Ubuntu machine says 'Read-only file system' when I try to save files. It started after a power cut in the lab."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "", "description": "taskbar disappeared and i cant see any open windows"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Windows license error on lab PCs", "description": "All PCs in lab 8 say 'Your Windows license will expire soon'. Please check before exams."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Recycle bin corrupted", "description": "Windows says 'The Recycle Bin on C:\\ is corrupted. Do you want to empty it?' Is it safe?"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Mac login loop", "description": "My Mac accepts my password, shows a progress bar, then goes back to the login screen."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Desktop icons missing", "description": "My desktop icons and wallpaper are gone, only a black background. Right click does nothing."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "", "description": "Hi, my laptop says 'No bootable device' after I tried to install Linux alongside Windows. Did I lose Windows?"}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Can't map network drive at startup", "description": "Windows shows 'Could not reconnect all network drives' at every startup and my H: drive is missing."}
+{"subcategory": "OS error (Windows/Linux/macOS)", "title": "Language bar changed", "description": "My keyboard keeps switching to another language by itself, and the taskbar shows a language I never added."}
+{"subcategory": "OS update failure", "title": "Windows update failed", "description": "Windows Update fails with error 0x800f0922 every time. I've tried 5 times. My laptop says it's not up to date."}
+{"subcategory": "OS update failure", "title": "", "description": "stuck on 'working on updates 30% dont turn off your computer' for 2 hours"}
+{"subcategory": "OS update failure", "title": "Undoing changes after update", "description": "After an update the PC restarted and says 'We couldn't complete the updates. Undoing changes.' This happens at every restart."}
+{"subcategory": "OS update failure", "title": "macOS update won't install", "description": "The macOS update downloads but then says 'An error occurred while installing the selected updates'. I have 50 GB free."}
+{"subcategory": "OS update failure", "title": "Windows 11 upgrade not possible", "description": "My laptop says it doesn't meet the requirements for Windows 11. Windows 10 support is ending. What should I do?"}
+{"subcategory": "OS update failure", "title": "Update broke my laptop", "description": "After installing updates yesterday my laptop shows a blue screen at startup with 'INACCESSIBLE_BOOT_DEVICE'."}
+{"subcategory": "OS update failure", "title": "", "description": "Hello, Ubuntu software updater says 'Not all updates can be installed' and then fails with a broken package error."}
+{"subcategory": "OS update failure", "title": "Feature update stuck downloading", "description": "The Windows feature update has been 'Downloading - 0%' for three days. Other downloads are fast."}
+{"subcategory": "OS update failure", "title": "Update during class", "description": "The lecture PC started installing updates in the middle of my class and I couldn't use it for 40 minutes. Can updates be scheduled at night?"}
+{"subcategory": "OS update failure", "title": "Mac update stuck at Apple logo", "description": "During the macOS update my Mac has been stuck at the Apple logo with a progress bar for 3 hours."}
+{"subcategory": "OS update failure", "title": "Pending restart forever", "description": "Windows Update says 'Restart required' but after restarting it still says restart required. Same update every day."}
+{"subcategory": "OS update failure", "title": "Update error 0x80070643", "description": "A security update keeps failing with error 0x80070643. Is my computer at risk?"}
+{"subcategory": "OS update failure", "title": "Lab machines not updated", "description": "The PCs in lab 2 show 'Your device is missing important security updates' on startup. Should they be updated before students use them?"}
+{"subcategory": "OS update failure", "title": "Can't update, not enough space", "description": "The Windows update says it needs 10 GB free and my laptop only has 64 GB storage total. What can I remove?"}
+{"subcategory": "OS update failure", "title": "Fedora upgrade failed", "description": "dnf system-upgrade to the new Fedora version failed halfway and now the system boots into emergency mode."}
+{"subcategory": "OS update failure", "title": "", "description": "Dear IT, my laptop downloaded an update and now asks me to restart, but I'm in the middle of a 3 day experiment logging data. Can I postpone it safely?"}
+{"subcategory": "OS update failure", "title": "Updates managed by organization", "description": "Windows Update says 'Some settings are managed by your organization' and won't let me check for updates. My laptop is behind on updates."}
+{"subcategory": "OS update failure", "title": "Update changed my settings", "description": "After the big Windows update my default apps and taskbar settings were reset and some programs disappeared."}
+{"subcategory": "OS update failure", "title": "macOS too old for software", "description": "My MacBook can't update past macOS Big Sur and some university software now requires a newer version."}
+{"subcategory": "OS update failure", "title": "", "description": "windows update keeps failing at 99% with 'something didn't go as planned'"}
+{"subcategory": "OS update failure", "title": "BIOS update warning", "description": "My laptop shows a message that a BIOS firmware update is pending and asks me to plug in the charger. Is this from IT, is it safe?"}
+{"subcategory": "OS update failure", "title": "Update failed on lecture room PC", "description": "The PC in room B5 shows 'Update failed - restart to try again' on every boot. I have to wait 10 minutes before each lecture."}
+{"subcategory": "OS update failure", "title": "Update reboot loop", "description": "My PC is in a loop: installs update, restarts, fails, installs again. It's been going on since morning."}
+{"subcategory": "Driver problem", "title": "No sound", "description": "No sound from my laptop speakers since yesterday. The volume is up and it says 'No output devices found'."}
+{"subcategory": "Driver problem", "title": "", "description": "touchpad stopped working after update, mouse works"}
+{"subcategory": "Driver problem", "title": "Webcam not detected", "description": "My laptop's webcam isn't detected by any app, Device Manager shows it with a yellow warning sign. I need it for online lectures."}
+{"subcategory": "Driver problem", "title": "Second monitor not detected", "description": "My second monitor is not detected anymore when I connect it via HDMI. It worked last week. The monitor works with another PC."}
+{"subcategory": "Driver problem", "title": "Bluetooth missing", "description": "Bluetooth disappeared from my settings, I can't connect my headphones. The toggle is gone."}
+{"subcategory": "Driver problem", "title": "Graphics driver error", "description": "I get 'Display driver stopped responding and has recovered' several times a day and the screen flickers."}
+{"subcategory": "Driver problem", "title": "", "description": "Hello, the projector in room A12 is not detected by the lecture PC anymore, the PC says 'No signal'. The projector turns on fine."}
+{"subcategory": "Driver problem", "title": "Headset microphone not working", "description": "My USB headset microphone isn't recognized by Windows, people can't hear me in meetings. The headset works on my colleague's PC."}
+{"subcategory": "Driver problem", "title": "Screen flickering", "description": "My laptop screen flickers constantly, especially when I open a browser. External monitor doesn't flicker."}
+{"subcategory": "Driver problem", "title": "Docking station USB ports not working", "description": "The USB ports on my docking station stopped working, keyboard and mouse connected to it don't respond. Monitors on the dock work."}
+{"subcategory": "Driver problem", "title": "Blue screen DRIVER_IRQL_NOT_LESS_OR_EQUAL", "description": "I get a blue screen with DRIVER_IRQL_NOT_LESS_OR_EQUAL whenever I plug in my headset."}
+{"subcategory": "Driver problem", "title": "", "description": "Dear IT, the barcode scanner at the library counter stopped working after the PC was updated. Windows says 'USB device not recognized'."}
+{"subcategory": "Driver problem", "title": "Drawing tablet not working", "description": "My Wacom drawing tablet doesn't respond on the design lab PC. The light is on but the cursor doesn't move."}
+{"subcategory": "Driver problem", "title": "Sound crackling", "description": "Audio from my laptop crackles and pops, in every program. Started after a driver update."}
+{"subcategory": "Driver problem", "title": "Resolution stuck low", "description": "My screen resolution is stuck at 1024x768 and the display adapter shows 'Microsoft Basic Display Adapter'."}
+{"subcategory": "Driver problem", "title": "", "description": "keyboard types wrong characters after update, like @ instead of \", and some keys dont work at all"}
+{"subcategory": "Driver problem", "title": "Lab oscilloscope not recognized", "description": "The lab PC doesn't recognize the oscilloscope connected over USB anymore. The measurement software says no device found."}
+{"subcategory": "Driver problem", "title": "Fingerprint reader stopped working", "description": "Windows Hello fingerprint stopped working, it says 'We couldn't find a fingerprint scanner compatible with Windows Hello'."}
+{"subcategory": "Driver problem", "title": "External hard drive not showing", "description": "My external hard drive with my research backups doesn't show up on my PC anymore. It makes a sound when plugged in."}
+{"subcategory": "Driver problem", "title": "HDMI no sound", "description": "When I connect to the lecture room screen with HDMI, the image works but there's no sound for my videos."}
+{"subcategory": "Driver problem", "title": "", "description": "laptop camera shows black image in every app, privacy shutter is open"}
+{"subcategory": "Driver problem", "title": "Docking monitors flicker on Mac", "description": "My two monitors on the docking station flicker and go black every few minutes with my MacBook. With a Windows laptop they're fine."}
+{"subcategory": "Driver problem", "title": "Speaker in lecture room not working with PC", "description": "The room speaker system works with the DVD player but not with the lecture PC. The PC shows the speakers as 'disabled'."}
+{"subcategory": "Hardware-related error", "title": "Printer paper jam", "description": "The printer on floor 2 shows 'paper jam' but there is no paper stuck. We opened all the doors and checked."}
+{"subcategory": "Hardware-related error", "title": "", "description": "printer prints blank pages"}
+{"subcategory": "Hardware-related error", "title": "Can't print from my laptop", "description": "My laptop can't find the department printer anymore, it says 'printer offline'. Others can print to it."}
+{"subcategory": "Hardware-related error", "title": "Laptop won't turn on", "description": "My laptop doesn't turn on at all, no lights when I press the power button. The charger light is on."}
+{"subcategory": "Hardware-related error", "title": "Broken screen", "description": "I dropped my university laptop and the screen is cracked, half of it is black. What's the procedure for repair?"}
+{"subcategory": "Hardware-related error", "title": "Print jobs stuck in queue", "description": "My print jobs stay in the queue with status 'Error - Printing' and nothing comes out of the printer."}
+{"subcategory": "Hardware-related error", "title": "", "description": "Hello, the scanner on the multifunction printer in the library makes a loud noise and produces black stripes on every scan."}
+{"subcategory": "Hardware-related error", "title": "Keyboard keys not working", "description": "Several keys on my laptop keyboard don't work: E, R and the space bar. I spilled a bit of water on it yesterday."}
+{"subcategory": "Hardware-related error", "title": "Battery swelling", "description": "My laptop's trackpad is pushed up and the case is bulging. Someone said the battery might be swollen. Is it dangerous?"}
+{"subcategory": "Hardware-related error", "title": "Printer toner low message", "description": "The printer in the staff room says 'toner low' and the prints are very faint. Who replaces toner?"}
+{"subcategory": "Hardware-related error", "title": "Laptop charger not charging", "description": "My laptop isn't charging anymore, the battery icon shows 'plugged in, not charging'. I tried another socket."}
+{"subcategory": "Hardware-related error", "title": "", "description": "pc makes beeping sounds at startup and nothing on the screen"}
+{"subcategory": "Hardware-related error", "title": "Hard drive clicking noise", "description": "My desktop's hard drive makes clicking noises and files take forever to open. I'm worried I'll lose my data."}
+{"subcategory": "Hardware-related error", "title": "Monitor not turning on", "description": "My monitor's power light blinks orange but the screen stays black. Cables are plugged in."}
+{"subcategory": "Hardware-related error", "title": "Printer prints garbage characters", "description": "When I print a PDF, the printer prints pages full of random symbols and wastes a lot of paper."}
+{"subcategory": "Hardware-related error", "title": "Lab PC power supply", "description": "Computer 9 in lab 3 smells like burning plastic and turned off by itself. We unplugged it."}
+{"subcategory": "Hardware-related error", "title": "", "description": "Dear IT, the print release station in the student center doesn't read our student cards anymore."}
+{"subcategory": "Hardware-related error", "title": "Laptop hinge broken", "description": "The hinge on my laptop broke and the screen doesn't stay open. Can it be repaired under warranty?"}
+{"subcategory": "Hardware-related error", "title": "Can't add network printer on Mac", "description": "I can't add the department printer on my Mac, it says 'Unable to verify the printer on your network'."}
+{"subcategory": "Hardware-related error", "title": "Mouse not working", "description": "The wireless mouse on my office PC stopped working, I replaced the batteries, still nothing."}
+{"subcategory": "Hardware-related error", "title": "Printer duplex not working", "description": "The printer in the dean's office only prints one-sided now, even when double-sided is selected. It worked last month."}
+{"subcategory": "Hardware-related error", "title": "", "description": "my laptop screen has lines across it, vertical colored lines, started this morning"}
+{"subcategory": "Hardware-related error", "title": "USB port broken", "description": "One USB port on my laptop is loose and doesn't work anymore. The other one works."}
+{"subcategory": "Hardware-related error", "title": "Printer out of order in library", "description": "The black and white printer in the library ground floor shows error code 50.4 and won't print."}
+{"subcategory": "Hardware-related error", "title": "Laptop fan noise", "description": "My laptop fan makes a grinding noise, very loud. It started after the laptop fell from the desk."}
+{"subcategory": "Hardware-related error", "title": "Interactive whiteboard not responding to touch", "description": "The interactive whiteboard in room D3 shows the image but doesn't respond to touch or pen. Lessons rely on it."}
+{"subcategory": "Hardware-related error", "title": "", "description": "printing in color doesnt work, only black and white comes out from the color printer in the design studio"}
+{"subcategory": "Hardware-related error", "title": "Request new laptop battery", "description": "My laptop battery lasts only 20 minutes now. Can the battery be replaced?"}
+{"subcategory": "Hardware-related error", "title": "Desk phone broken", "description": "My VoIP desk phone shows 'No service' and I can't make calls. The network cable is connected."}
+{"subcategory": "Hardware-related error", "title": "Water spilled on laptop", "description": "I spilled coffee on my work laptop, it turned off and I didn't turn it back on. What should I do now?"}
+{"subcategory": "Hardware-related error", "title": "Printer driver missing for new printer", "description": "We got a new printer in our office but nobody can print, Windows can't find a driver for it."}

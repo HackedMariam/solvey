@@ -12,3 +12,12 @@ venv/
 env/
 
 
+
+# Raw third-party datasets (licensed, large) - download per data/README.md
+data/raw/
+
+# Built datasets (reproducible: python classification/build_dataset.py)
+data/processed/
+
+# Trained model weights (large; reproducible with classification/train.py)
+models/
