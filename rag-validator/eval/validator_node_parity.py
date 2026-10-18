@@ -20,10 +20,11 @@ class _FixtureJudge:
 
     def judge(self, _dossier: dict[str, Any], prompt_version: str = "v2") -> dict[str, Any]:
         assert prompt_version == "v2"
-        expected_verdict = self.case["expected_verdict"]
+        expected_verdict = self.case.get("judge_verdict", self.case["expected_verdict"])
+        expected_failure_type = self.case.get("judge_failure_type", self.case["expected_failure_type"])
         return {
             "verdict": expected_verdict,
-            "failure_type": self.case["expected_failure_type"],
+            "failure_type": expected_failure_type,
             "target_stage": {
                 "approve": None,
                 "retry_retrieval": "retrieval",

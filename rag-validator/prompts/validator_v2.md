@@ -50,6 +50,11 @@ Checklist:
   `[<Category> - <short problem>] <summary>` format? Are all seven required
   description sections present and ordered, with Case ID, category, and
   preserved urgency consistent with the dossier?
+- Do not call a ticket incomplete when all seven required sections and a
+  non-empty `Reason for Escalation` are present. For a sensitive ticket with
+  missing user details, ensure the clarification question is recorded under
+  `User Request` and allow escalation for human review rather than returning
+  `clarify`. Deterministic safety and secret checks still take precedence.
 - If a ticket contradicts the user report or Vision, request one ticket
   regeneration as `unfaithful_answer`; do not request retrieval just to fix a
   draft-ticket contradiction. Reserve `retry_retrieval` for missing or weak

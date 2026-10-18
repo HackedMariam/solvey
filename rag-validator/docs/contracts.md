@@ -224,6 +224,13 @@ reference dossiers.
 For ticket mode, replace `draft_answer` by `draft_ticket`; all other
 top-level fields remain present.
 
+For a sensitive ticket, missing user details do not stop escalation. The
+Validator records the clarification question under `User Request` and
+continues ticket validation so a human can follow up. A ticket with all seven
+required sections and a non-empty `Reason for Escalation` is not incomplete;
+secret redaction, safety-risk, schema, priority, and dossier-consistency
+checks remain enforced.
+
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `mode` | string | yes | `answer` before user delivery, or `ticket` before ticket creation. |

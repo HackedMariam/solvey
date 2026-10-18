@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_PATH = ROOT / "n8n" / "validator.json"
 LOGIC_PATH = ROOT / "n8n" / "validator_logic.js"
 DECISION_PATH = ROOT / "n8n" / "validator_decision.js"
+DETERMINISTIC_RETURN_PATH = ROOT / "n8n" / "validator_deterministic_return.js"
 
 
 def node_id(label: str) -> str:
@@ -111,11 +112,16 @@ return [{{json:{{ok,judgment,provider:'{provider}',model,context:ctx.context}}}}
 def main() -> None:
     logic = LOGIC_PATH.read_text(encoding="utf-8").rstrip()
     decision = DECISION_PATH.read_text(encoding="utf-8").rstrip()
+    deterministic_return = DETERMINISTIC_RETURN_PATH.read_text(encoding="utf-8").rstrip()
     nodes = [
         base_node("Complete Dossier Trigger", "n8n-nodes-base.executeWorkflowTrigger", 1.1, [240, 420], {"inputSource": "passthrough"}),
         code_node("Deterministic Validator Checks", [500, 420], logic + "\nreturn [{json:runDeterministic($input.first().json)}];"),
         if_node("Needs LLM Judge?", [760, 420], "={{ $json.complete !== true }}"),
-        code_node("Return Deterministic Verdict", [1020, 640], "return [{json:$input.first().json.result}];"),
+        code_node(
+            "Return Deterministic Verdict",
+            [1020, 640],
+            deterministic_return + "\nreturn [{json:processDeterministicTicketResult($input.first().json.result)}];",
+        ),
         http_node(
             "Groq Judge",
             [1020, 260],

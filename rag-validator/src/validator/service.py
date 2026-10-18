@@ -599,6 +599,22 @@ def _deterministic_checks(dossier: dict[str, Any]) -> tuple[dict[str, Any], dict
             f"Triage category {category!r} conflicts with the reported problem.",
             dossier,
         )
+    if (
+        triage.get("needs_clarification") is True
+        and dossier["mode"] == "ticket"
+        and triage.get("is_sensitive") is True
+    ):
+        _insert_ticket_clarification(
+            dossier,
+            triage.get("clarification_question"),
+            stage_checks,
+        )
+        triage["needs_clarification"] = False
+        _correction(
+            stage_checks,
+            "triage",
+            "missing information is recorded in the sensitive-incident ticket instead of blocking escalation",
+        )
     if triage.get("needs_clarification") is True:
         return stage_checks, _result(
             "clarify", "missing_user_info", "user", stage_checks,
@@ -846,6 +862,59 @@ def _check_retrieval_relevance(
     return None
 
 
+def _ticket_has_required_sections_and_reason(dossier: dict[str, Any]) -> bool:
+    ticket = dossier.get("draft_ticket")
+    if dossier.get("mode") != "ticket" or not isinstance(ticket, dict):
+        return False
+    description = ticket.get("description")
+    if not isinstance(description, str):
+        return False
+    positions = [description.find(section) for section in _TICKET_SECTIONS]
+    if any(position < 0 for position in positions) or positions != sorted(positions):
+        return False
+    reason_start = positions[5] + len(_TICKET_SECTIONS[5])
+    reason = description[reason_start:positions[6]].lstrip(" \t\r\n:：-")
+    return bool(reason.strip())
+
+
+def _insert_ticket_clarification(
+    dossier: dict[str, Any],
+    question: Any,
+    stage_checks: dict[str, Any],
+) -> bool:
+    ticket = dossier.get("draft_ticket")
+    if not isinstance(ticket, dict) or not isinstance(ticket.get("description"), str):
+        return False
+    description = ticket["description"]
+    if re.search(r"Clarification requested:", description, re.IGNORECASE):
+        return True
+    clarification = (
+        question.strip()
+        if isinstance(question, str) and question.strip()
+        else "Please provide the missing details needed for investigation."
+    )
+    match = re.search(r"(^|\n)(User Request:?[^\r\n]*)(\r?\n)", description, re.IGNORECASE)
+    if not match:
+        return False
+    start, heading, newline = match.groups()
+    ticket["description"] = (
+        description[:match.start()]
+        + f"{start}{heading}{newline}Clarification requested: {clarification}\n"
+        + description[match.end():]
+    )
+    _correction(stage_checks, "ticket", "missing-information question added to the sensitive-incident ticket")
+    return True
+
+
+def _overview_value(overview: str, label: str) -> str | None:
+    match = re.search(
+        rf"(?:^|[\n(,]\s*){re.escape(label)}\s*:\s*([^,)\r\n]+)",
+        overview,
+        re.IGNORECASE,
+    )
+    return match.group(1).strip() if match else None
+
+
 def _check_ticket(dossier: dict[str, Any], stage_checks: dict[str, Any]) -> dict[str, Any] | None:
     ticket = dossier["draft_ticket"]
     sanitized_ticket, leaked = _sanitize_secrets(ticket)
@@ -890,6 +959,17 @@ def _check_ticket(dossier: dict[str, Any], stage_checks: dict[str, Any]) -> dict
     category_label = _CATEGORY_LABELS.get(dossier["triage"].get("category"))
     if category_label is None:
         return _inconsistent(dossier, stage_checks, "ticket", "triage.category", "has no ticket label mapping")
+    title_prefix = re.match(r"^\[([^\]]+?)\s*-\s*", ticket["title"])
+    if title_prefix:
+        normalize = lambda value: re.sub(r"[^a-z0-9]", "", value.lower())
+        if normalize(title_prefix.group(1)) == normalize(category_label) and title_prefix.group(1) != category_label:
+            ticket["title"] = re.sub(
+                r"^\[[^\]]+?\s*-\s*",
+                f"[{category_label} - ",
+                ticket["title"],
+                count=1,
+            )
+            _correction(stage_checks, "ticket", f"ticket title category normalized to {category_label!r}")
     if not ticket["title"].startswith(f"[{category_label} - ") or "] " not in ticket["title"]:
         _issue(stage_checks, "ticket", "title must use [<Category> - <short problem>] <summary>")
         return _regenerate_result(
@@ -930,21 +1010,30 @@ def _check_ticket(dossier: dict[str, Any], stage_checks: dict[str, Any]) -> dict
     if not isinstance(dossier.get("request_id"), str) or not dossier["request_id"].strip():
         return _inconsistent(dossier, stage_checks, "ticket", "request_id", "must be a non-empty string for Case ID")
     for label, expected in required_lines.items():
-        actual_line = next(
-            (line.partition(":")[2].strip() for line in overview.splitlines() if line.startswith(f"{label}:")),
-            None,
-        )
-        if actual_line != expected:
+        actual_line = _overview_value(overview, label)
+        matches = (
+            actual_line is not None
+            and re.sub(r"[^a-z0-9]", "", actual_line.lower())
+            == re.sub(r"[^a-z0-9]", "", expected.lower())
+        ) if label == "Category" and isinstance(expected, str) else actual_line == expected
+        if not matches:
             return _inconsistent(
                 dossier, stage_checks, "ticket", f"draft_ticket.description.{label}",
                 f"must exactly match {expected!r}",
             )
-    if not any(line.startswith("Summary:") and line.partition(":")[2].strip() for line in overview.splitlines()):
+    if not _overview_value(overview, "Summary"):
         _issue(stage_checks, "ticket", "Incident Overview is missing a non-empty Summary")
         return _regenerate_result(
             dossier, stage_checks, "incomplete_ticket", "ticket",
             "Add a concise non-empty Summary to Incident Overview.",
             "Ticket Incident Overview has no summary.",
+        )
+    if not _ticket_has_required_sections_and_reason(dossier):
+        _issue(stage_checks, "ticket", "Reason for Escalation must contain a non-empty reason.")
+        return _regenerate_result(
+            dossier, stage_checks, "incomplete_ticket", "ticket",
+            "Add a non-empty explanation under Reason for Escalation.",
+            "Ticket has no escalation rationale.",
         )
     return None
 
@@ -995,6 +1084,16 @@ def _apply_decision(
             feedback if isinstance(feedback, str) else "Remove the leaked data and regenerate.",
             reason,
         )
+    elif (
+        dossier["mode"] == "ticket"
+        and failure == "incomplete_ticket"
+        and _ticket_has_required_sections_and_reason(dossier)
+    ):
+        verdict, failure, target, feedback = "approve", None, None, ""
+        reason = (
+            "All required ticket sections and a non-empty escalation reason are present; "
+            "deterministic ticket and safety checks passed."
+        )
     elif failure == "incomplete_ticket" and dossier["mode"] == "ticket":
         counts = dossier["attempt_counts"]
         if counts["regenerate"] < MAX_REGENERATIONS and counts.get("total", 0) < 2:
@@ -1016,7 +1115,26 @@ def _apply_decision(
         else:
             verdict, target = "escalate", "ticket"
     elif failure == "missing_user_info":
-        verdict, target = "clarify", "user"
+        if (
+            dossier["mode"] == "ticket"
+            and dossier.get("triage", {}).get("is_sensitive") is True
+            and _ticket_has_required_sections_and_reason(dossier)
+        ):
+            _insert_ticket_clarification(dossier, feedback or dossier["triage"].get("clarification_question"), stage_checks)
+            if re.search(
+                r"Clarification requested:",
+                dossier["draft_ticket"]["description"],
+                re.IGNORECASE,
+            ):
+                verdict, failure, target, feedback = "approve", None, None, ""
+                reason = (
+                    "The missing-information question is recorded in the sensitive-incident ticket; "
+                    "escalation is not blocked."
+                )
+            else:
+                verdict, target = "escalate", "ticket"
+        else:
+            verdict, target = "clarify", "user"
 
     return _result(
         verdict,

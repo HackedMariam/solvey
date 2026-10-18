@@ -42,3 +42,10 @@ preserved urgency. The ticket must record only supported evidence and actual
 attempted steps; it must not contain passwords or secrets. Never let the
 final answer state a diagnosis that the passages do not support. Return JSON
 only, without Markdown fences.
+
+In ticket mode, do not reject a ticket as `incomplete_ticket` when all seven
+required sections and a non-empty `Reason for Escalation` are present. For a
+sensitive ticket with missing user details, keep the escalation path moving
+and put the clarification question under `User Request`; do not return
+`clarify` instead of allowing human review. Safety-risk and secret checks
+still take precedence.

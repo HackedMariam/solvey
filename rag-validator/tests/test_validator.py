@@ -24,12 +24,73 @@ class ApproveJudge:
         }
 
 
+class IncompleteTicketJudge:
+    provider = "fake"
+
+    def judge(self, _dossier, prompt_version="v2"):
+        assert prompt_version in {"v1", "v2"}
+        return {
+            "verdict": "regenerate",
+            "failure_type": "incomplete_ticket",
+            "target_stage": "ticket",
+            "feedback_for_stage": "Please complete the ticket.",
+            "reason": "The LLM incorrectly thinks the complete ticket is incomplete.",
+        }
+
+
+class MissingInfoJudge:
+    provider = "fake"
+
+    def judge(self, _dossier, prompt_version="v2"):
+        assert prompt_version in {"v1", "v2"}
+        return {
+            "verdict": "clarify",
+            "failure_type": "missing_user_info",
+            "target_stage": "user",
+            "feedback_for_stage": "Which email address was affected?",
+            "reason": "The incident needs additional identifying information.",
+        }
+
+
 def _answer_dossier() -> dict:
     return json.loads((ROOT / "examples" / "dossier_answer.json").read_text(encoding="utf-8"))
 
 
 def _ticket_dossier() -> dict:
     return json.loads((ROOT / "examples" / "dossier_ticket.json").read_text(encoding="utf-8"))
+
+
+def _captured_ticket_dossier() -> dict:
+    dossier = _ticket_dossier()
+    dossier["request_id"] = "test-3"
+    dossier["user_text"] = (
+        "I clicked a link in a phishing email. My corporate Microsoft 365 email account "
+        "(Outlook) is compromised."
+    )
+    dossier["triage"].update({
+        "category": "email_communication",
+        "subcategory": "email_auth_failure",
+        "urgency": "critical",
+        "is_sensitive": True,
+        "sensitivity_reason": "The user reports a phishing email and a compromised account.",
+        "needs_clarification": False,
+        "clarification_question": "Which email address was affected?",
+    })
+    dossier["draft_ticket"] = {
+        "title": "[Email Communication - Account Compromised] Corporate Microsoft 365 email account compromised",
+        "description": (
+            "Incident Overview (Case ID: test-3, Category: Email Communication, "
+            "Preserved Urgency (Priority): critical, Summary: Corporate Microsoft 365 email account compromised)\n\n"
+            "User Request:\nThe user clicked a link in a phishing email.\n\n"
+            "Visual Findings & Terminal OCR:\nNot provided\n\n"
+            "Retrieved Technical Documentation (RAG):\nNone retrieved\n\n"
+            "Attempted Troubleshooting & Outcomes:\nNo troubleshooting steps have been attempted yet.\n\n"
+            "Reason for Escalation:\nThe corporate email account is reported compromised after a phishing link was clicked.\n\n"
+            "Suggested Assignee Group: IT Support (informational only)"
+        ),
+        "priority": "critical",
+    }
+    return dossier
 
 
 def test_complete_answer_dossier_reaches_judge_and_approves():
@@ -175,6 +236,43 @@ def test_ticket_sensitive_incident_can_be_validated_before_creation():
     assert result["sanitized_dossier"]["draft_ticket"]["priority"] == "critical"
 
 
+def test_complete_captured_ticket_is_approved_despite_judge_incomplete_false_positive():
+    result = validate_dossier(_captured_ticket_dossier(), judge=IncompleteTicketJudge())
+
+    assert result["verdict"] == "approve"
+    assert result["failure_type"] is None
+    assert result["sanitized_dossier"]["draft_ticket"]["title"].startswith(
+        "[Email & Communication - "
+    )
+    assert result["stage_checks"]["ticket"]["corrections"]
+
+
+def test_sensitive_ticket_records_clarification_instead_of_blocking_escalation():
+    dossier = _captured_ticket_dossier()
+    dossier["triage"]["needs_clarification"] = True
+
+    result = validate_dossier(dossier, judge=MissingInfoJudge())
+
+    assert result["verdict"] == "approve"
+    assert result["failure_type"] is None
+    description = result["sanitized_dossier"]["draft_ticket"]["description"]
+    assert "Clarification requested: Which email address was affected?" in description
+    assert result["sanitized_dossier"]["triage"]["needs_clarification"] is False
+
+
+def test_ticket_without_escalation_reason_is_still_rejected():
+    dossier = _captured_ticket_dossier()
+    dossier["draft_ticket"]["description"] = dossier["draft_ticket"]["description"].replace(
+        "The corporate email account is reported compromised after a phishing link was clicked.",
+        "",
+    )
+
+    result = validate_dossier(dossier, judge=ApproveJudge())
+
+    assert result["verdict"] == "regenerate"
+    assert result["failure_type"] == "incomplete_ticket"
+
+
 def test_ticket_case_id_category_and_urgency_match_dossier():
     dossier = _ticket_dossier()
     dossier["draft_ticket"]["description"] = dossier["draft_ticket"]["description"].replace(
@@ -271,7 +369,7 @@ def test_malformed_unhashable_fields_escalate_instead_of_crashing():
 def test_hard_case_overlays_resolve_to_complete_dossiers():
     cases = _load_cases(ROOT / "eval" / "validator_cases.jsonl")
 
-    assert len(cases) == 28
+    assert len(cases) >= 28
     masked_password = next(
         case for case in cases if case["case_id"] == "ticket-partially-masked-password"
     )

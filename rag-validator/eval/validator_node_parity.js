@@ -17,16 +17,20 @@ const results = cases.map((testCase) => {
       failure_type: checked.result.failure_type,
     };
   }
+  const judgeVerdict = testCase.judge_verdict || testCase.expected_verdict;
+  const judgeFailure = Object.hasOwn(testCase, "judge_failure_type")
+    ? testCase.judge_failure_type
+    : testCase.expected_failure_type;
   const target = {
     retry_retrieval: "retrieval",
     regenerate: testCase.dossier.mode === "ticket" ? "ticket" : "answer",
     clarify: "user",
     escalate: "ticket",
     approve: null,
-  }[testCase.expected_verdict];
+  }[judgeVerdict];
   const result = finish(checked.context, {
-    verdict: testCase.expected_verdict,
-    failure_type: testCase.expected_failure_type,
+    verdict: judgeVerdict,
+    failure_type: judgeFailure,
     target_stage: target,
     feedback_for_stage: "parity fixture",
     reason: "parity fixture",

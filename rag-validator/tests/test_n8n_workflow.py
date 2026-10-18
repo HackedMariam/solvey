@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -49,3 +50,18 @@ def test_n8n_validator_matches_python_on_validator_cases():
     results = run_node_parity()
 
     assert len(results) >= 16
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="Node.js is required for n8n Code-node regression tests")
+def test_native_ticket_validator_security_regressions():
+    script = Path(__file__).resolve().parents[1] / "eval" / "validator_ticket_regressions.js"
+    result = subprocess.run(
+        ["node", str(script)],
+        check=False,
+        capture_output=True,
+        text=True,
+        cwd=script.parent.parent,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Native ticket Validator regressions passed." in result.stdout
