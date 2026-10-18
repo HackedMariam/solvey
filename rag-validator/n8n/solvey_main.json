@@ -409,8 +409,8 @@
       "parameters": {
         "method": "POST",
         "url": "https://api.openai.com/v1/chat/completions",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({model:'gpt-4o-mini',temperature:0,messages:[{role:'user',content:[{type:'text',text:\"You are examining a screenshot attached to an IT support ticket. Report only the visible application or operating system, exact error messages, error codes, and screen state. Do not guess causes or suggest fixes. If text is unreadable, say so.\"},{type:'image_url',image_url:{url:$('Prepare image for Qwen').first().json.image_data_url,detail:'high'}}]}]}) }}",
@@ -426,8 +426,6 @@
       ],
       "id": "32f3aa2c-51e5-4f28-a20d-971ab65af3f9",
       "name": "OpenAI Vision Fallback",
-      "authentication": "predefinedCredentialType",
-      "nodeCredentialType": "openAiApi",
       "credentials": {
         "openAiApi": {
           "id": "RESELECT_OPENAI_CREDENTIAL",

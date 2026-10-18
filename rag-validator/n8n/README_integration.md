@@ -1,5 +1,20 @@
 # Solvey n8n integration
 
+## Credentials to create in n8n Cloud
+
+The credential **type** below is the item to choose from **Create credential**. The names in parentheses are labels shown by the exported nodes, not credential types. Keep all values in n8n credentials; never put the `.env` values in workflow JSON.
+
+| Create credential type (exact n8n display name) | Credential label (optional) | Fields to fill | `.env` variable | Nodes using it (workflow → node) |
+| --- | --- | --- | --- | --- |
+| **OpenAI** (`openAiApi`, predefined) | `OpenAI API` | **API Key** = key value. Leave **Organization ID (optional)** blank unless your account requires it; leave **Base URL** at its default; **Add Custom Header** off. | `OPENAI_API_KEY` | `rag_retrieve.json` → **OpenAI Query Embedding**; `solvey_main.json` → **OpenAI Vision Fallback** |
+| **Header Auth** (`httpHeaderAuth`, generic) | `Groq API` | **Name** = `Authorization`; **Value** = bearer scheme followed by the key value. | `GROQ_API_KEY` | `extract_route.json` → **Groq structured extraction**; `resolution_agent.json` → **Groq resolution**; `ticket_agent.json` → **Groq ticket** |
+| **Header Auth** (`httpHeaderAuth`, generic) | `Google Gemini API key` | **Name** = `x-goog-api-key`; **Value** = key value (no bearer prefix). | `GOOGLE_API_KEY` | `solvey_main.json` → **Gemini Vision Fallback** |
+| **Header Auth** (`httpHeaderAuth`, generic) | `Qdrant API Key` | **Name** = `api-key`; **Value** = API key value. | `QDRANT_API_KEY` | `rag_retrieve.json` → **Qdrant Search (category)** and **Qdrant Search (fallback)** |
+
+`QDRANT_URL` is the Qdrant cluster endpoint, not a credential field: replace `YOUR-QDRANT-CLUSTER` in both Qdrant URL fields in `rag_retrieve.json` with that endpoint (keeping the `/collections/it_kb_blocks/points/query` path). `validator.json` and `solvey_error_workflow.json` have no n8n credential references; the Validator HTTP endpoint is unauthenticated in this export, and its LLM provider credentials belong to the separately deployed Validator service. `solvey_main.json` and the agent workflows have no further credential types beyond those listed above. Re-select each credential in the imported nodes because exported credential IDs are placeholders.
+
+For the OpenAI type, the node JSON declares `openAiApi`; n8n's credential definition displays this as **OpenAI**. Header-based nodes declare `httpHeaderAuth`, displayed as **Header Auth**. The exported labels (`OpenAI API`, `Groq API`, etc.) can be renamed in n8n without changing the credential type.
+
 The intake nodes come from the colleague's export and remain in place. Only downstream routing is replaced. `Mock DistilBERT Output` remains a constant demo node and is marked **À REMPLACER par le vrai modèle**.
 
 ## Import order
@@ -15,14 +30,7 @@ The intake nodes come from the colleague's export and remain in place. Only down
 
 ## Credentials and sharing
 
-Create project credentials; never paste keys into exported JSON:
-
-- **Groq API**: Header Auth with header name `Authorization`; set its value to the standard bearer scheme plus the Groq key stored in the n8n credential. Used by Extract, Resolution, and Ticket agents.
-- **Google Gemini API key**: Header Auth, `x-goog-api-key: <GOOGLE_API_KEY>`, used by the image fallback.
-- **OpenAI API**: native OpenAI credential, used for image fallback and the retrieval sub-workflow's `text-embedding-3-small`.
-- **Qdrant API Key**: Header Auth, `api-key: <QDRANT_API_KEY>`, used by Qdrant Cloud REST.
-
-Re-select credentials in every imported HTTP Request node. In n8n Cloud, share workflows and credentials with the same project/team; sharing a workflow does not automatically grant credential use. Do not export credentials or commit them.
+Create the four credential instances from the table above and re-select each one in the imported HTTP Request nodes. In n8n Cloud, share workflows and credentials with the same project/team; sharing a workflow does not automatically grant credential use. Do not export credentials or commit them.
 
 The single Qwen tunnel setting is `qwen_chat_url` in the `Vision Endpoint Config` node. Replace that one value when the trycloudflare URL changes. Qwen has a 45-second timeout; failure routes to Gemini `gemini-3.8-flash`, then OpenAI `gpt-4o-mini`, with the same visual-inspection prompt and text output shape.
 
