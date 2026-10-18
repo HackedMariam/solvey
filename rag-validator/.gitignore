@@ -1,0 +1,14 @@
+.env
+.venv/
+.venv-docling/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/corpus/
+data/processed/
+data/upstream/
+qdrant_storage/
+.qdrant/
+data/qdrant/
+eval/results/

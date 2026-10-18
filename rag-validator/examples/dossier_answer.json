@@ -1,0 +1,78 @@
+{
+  "mode": "answer",
+  "user_text": "My VPN client says authentication failed after I changed my password.",
+  "language": "en",
+  "vision": {
+    "usable": true,
+    "image_quality": "good",
+    "application": "VPN client",
+    "error_text": "Authentication failed",
+    "error_code": null,
+    "observations": ["The username field is populated."],
+    "contradictions": [],
+    "confidence": 0.96
+  },
+  "triage": {
+    "category": "network_vpn",
+    "subcategory": "vpn_auth_failure",
+    "urgency": "medium",
+    "confidence": 0.92,
+    "problem_type": "VPN authentication fails after a password change.",
+    "search_query": "VPN client authentication failed after password change",
+    "automatable": true,
+    "is_sensitive": false,
+    "sensitivity_reason": null,
+    "needs_clarification": false,
+    "clarification_question": null,
+    "language": "en"
+  },
+  "retrieval": {
+    "query": "VPN client authentication failed after password change",
+    "chunks": [
+      {
+        "id": "S1",
+        "text": "If the VPN client reports Authentication failed, verify the username and current password, then reconnect.",
+        "table_raw": null,
+        "title": "VPN sign-in troubleshooting",
+        "section": "Authentication",
+        "page": null,
+        "source": "vpn-auth.md",
+        "url": null,
+        "category": "network_vpn",
+        "score": 0.72
+      },
+      {
+        "id": "S2",
+        "text": "After changing a password, sign out of the VPN client and enter the updated credentials.",
+        "table_raw": null,
+        "title": "Update VPN credentials",
+        "section": "Reconnect",
+        "page": null,
+        "source": "vpn-password.md",
+        "url": null,
+        "category": "network_vpn",
+        "score": 0.64
+      }
+    ],
+    "attempts": 1
+  },
+  "draft_answer": {
+    "summary": "The VPN client may still be using the password saved before your change.",
+    "steps": [
+      {
+        "instruction": "Sign out of the VPN client, enter your updated password, and reconnect.",
+        "command": null,
+        "source_ids": ["S1", "S2"]
+      }
+    ],
+    "warnings": [],
+    "escalate_if": "Contact IT if authentication still fails.",
+    "confidence": 0.91,
+    "final_message": "The VPN client may still be using your old password. Sign out, enter your updated password, and reconnect. Contact IT if it still fails."
+  },
+  "attempt_counts": {
+    "retry_retrieval": 0,
+    "regenerate": 0,
+    "total": 0
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "Final Validator",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "e114aa1a-ecb8-4f5e-8d38-d01498b8c001",
+      "name": "Complete Dossier Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://YOUR-VALIDATOR-HOST:8000/validate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "e114aa1a-ecb8-4f5e-8d38-d01498b8c002",
+      "name": "Run Deterministic Checks and Judge",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Complete Dossier Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Deterministic Checks and Judge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e114aa1a-ecb8-4f5e-8d38-d01498b8c003",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}

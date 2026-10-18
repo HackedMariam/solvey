@@ -1,0 +1,54 @@
+{
+  "mode": "ticket",
+  "user_text": "My work account was hacked. I also received an unexpected MFA approval prompt.",
+  "language": "en",
+  "vision": {
+    "usable": true,
+    "image_quality": "good",
+    "application": "Authenticator",
+    "error_text": "Approve sign-in?",
+    "error_code": null,
+    "observations": ["The user reports an unexpected sign-in approval request."],
+    "contradictions": [],
+    "confidence": 0.93
+  },
+  "triage": {
+    "category": "auth_access",
+    "subcategory": "mfa_failure",
+    "urgency": "critical",
+    "confidence": 0.99,
+    "problem_type": "Possible compromised work account with an unexpected MFA request.",
+    "search_query": "unexpected MFA approval prompt possible compromised account",
+    "automatable": false,
+    "is_sensitive": true,
+    "sensitivity_reason": "User reports account hacking and unexpected MFA activity.",
+    "needs_clarification": false,
+    "clarification_question": null,
+    "language": "en"
+  },
+  "retrieval": {
+    "query": "unexpected MFA approval prompt possible compromised account",
+    "chunks": [],
+    "attempts": 0
+  },
+  "draft_ticket": {
+    "title": "Possible compromised account — unexpected MFA prompt",
+    "summary": "The user reports their work account may have been hacked and received an unexpected MFA approval request. No automated troubleshooting was performed.",
+    "evidence": [
+      {
+        "source": "user_report",
+        "detail": "Unexpected MFA approval request reported by the user."
+      }
+    ],
+    "attempted_steps": [],
+    "priority": "critical",
+    "suggested_actions_for_staff": [
+      "Review recent sign-in activity and follow the organization's account-compromise procedure."
+    ]
+  },
+  "attempt_counts": {
+    "retry_retrieval": 0,
+    "regenerate": 0,
+    "total": 0
+  }
+}

@@ -1,0 +1,17 @@
+# Python 3.11+
+beautifulsoup4
+datasets
+fastapi
+groq
+httpx
+langchain-text-splitters
+markdownify
+openai
+pymupdf4llm
+pypdf
+python-dotenv
+qdrant-client
+uvicorn[standard]
+tiktoken
+PyYAML
+pytest
