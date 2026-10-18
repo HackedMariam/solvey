@@ -1,0 +1,87 @@
+{
+  "name": "Solvey Error Workflow — fallback ticket",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "id": "464b2259-010d-4e07-9a58-12d7953bd652",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const e=$input.first().json,execution=e.execution||{},workflow=e.workflow||{};\nconst number='ERR-'+String(execution.id||Date.now());\nreturn [{json:{ticket_number:number,request_id:number,created_at:new Date().toISOString(),priority:'high',title:'Automated support workflow failure',summary:`Workflow ${String(workflow.name||'unknown').slice(0,100)} failed; execution ${String(execution.id||'unknown')}. Review the secured n8n execution log. Error payload intentionally omitted.`,payload_json:JSON.stringify({status:'fallback',workflow:String(workflow.name||'unknown'),execution_id:String(execution.id||'unknown')})}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ],
+      "id": "d3f182a2-95d5-4465-bd72-8af0d7a1c5b3",
+      "name": "Build secret-free fallback ticket"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "solvey_tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        300
+      ],
+      "id": "e3333ce8-5efb-4b57-9035-c919d1dc9aaa",
+      "name": "Store fallback ticket"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build secret-free fallback ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build secret-free fallback ticket": {
+      "main": [
+        [
+          {
+            "node": "Store fallback ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5f06314e-28c0-4c2d-b7bf-812b6fcc0ba5",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

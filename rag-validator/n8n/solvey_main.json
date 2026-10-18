@@ -1,0 +1,2237 @@
+{
+  "name": "Solvey — intake + RAG + Validator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solvey/support",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        -736
+      ],
+      "id": "7e915a33-48fe-4da9-a5ed-da8d1e55720c",
+      "name": "Webhook",
+      "webhookId": "ad32754f-8c55-4f84-ba9e-399f179520c2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "30f97b9c-0549-406d-86c5-9936e9698708",
+              "leftValue": "={{ $json.body.description }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        -736
+      ],
+      "id": "f59d00c6-5cdb-4e11-ae42-879966d01d90",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"status\":\"invalid_request\",\"message\":\"description is required\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        448,
+        -640
+      ],
+      "id": "52492bac-9402-4021-a924-5abdd320f1f4",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f2b96f7-d5f1-4cd1-a4ce-45933dec8735",
+              "name": "category",
+              "value": "Network & VPN",
+              "type": "string"
+            },
+            {
+              "id": "8bfc4b4c-7f78-4725-9d17-9da47b6344d3",
+              "name": "subcategory",
+              "value": "VPN authentication failure",
+              "type": "string"
+            },
+            {
+              "id": "99792a5f-923b-4583-9611-d098f790820d",
+              "name": "confidence",
+              "value": 0.82,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        -816
+      ],
+      "id": "80498344-4eb1-44f4-a038-94f2daeb1a79",
+      "name": "Mock DistilBERT Output",
+      "notes": "À REMPLACER par le vrai modèle DistilBERT/Triage. Valeurs actuelles constantes de démonstration.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6477b2b4-d695-4c30-a120-0bb21ed7eaa6",
+              "leftValue": "={{ $json.confidence }}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1792,
+        -816
+      ],
+      "id": "f80722dd-269e-4994-9e6a-7f11ce447db3",
+      "name": "Low Confidence"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f9fa43c4-86c3-4880-8b5b-4ef4406b4e5f",
+              "name": "request_id",
+              "value": "={{ $json.body.request_id }}",
+              "type": "string"
+            },
+            {
+              "id": "637ffe72-ca43-4010-b6db-2b1d1c17bb23",
+              "name": "title",
+              "value": "={{ $json.body.title }}",
+              "type": "string"
+            },
+            {
+              "id": "c23807c4-be94-4cdc-883a-d5da9aadcf55",
+              "name": "description",
+              "value": "={{ $json.body.description }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "stripBinary": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        -832
+      ],
+      "id": "d08c05a4-7059-4105-809b-ce6405a0bfcc",
+      "name": "Normalize Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6bd2a9e1-d280-4325-bf87-ae6cfb39fb4c",
+              "leftValue": "={{ !!$binary?.attachment }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -832
+      ],
+      "id": "1993a41f-b831-4d5b-9db6-d448207e5d90",
+      "name": "Image provided?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a191987-ce75-49ad-adee-7988d42c0336",
+              "name": "request_id",
+              "value": "={{ $('Normalize Request').item.json.request_id }}",
+              "type": "string"
+            },
+            {
+              "id": "51b21527-18fd-4f45-ae9c-3c876b85932d",
+              "name": "title",
+              "value": "={{ $('Normalize Request').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "b1fe30ed-4dbf-4ae1-866c-13150a341e6a",
+              "name": "description",
+              "value": "={{ $('Normalize Request').item.json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "bce2e34f-1ddc-4f21-84a8-9518a30f4a7e",
+              "name": "vision_description",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "983b964c-3d95-4284-84c7-884f9a35cab3",
+              "name": "vision_model",
+              "value": "={{ $json.model }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1344,
+        -1008
+      ],
+      "id": "2676640d-45a2-4528-87bb-15a44b0cfe10",
+      "name": "Mock Qwen vision Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst file = item.binary?.attachment;\n\nif (!file) throw new Error('No uploaded attachment found');\n\nconst mime = file.mimeType;\nif (!['image/png', 'image/jpeg', 'image/webp'].includes(mime)) {\n  throw new Error(`Unsupported image type: ${mime}`);\n}\n\nconst buffer = await this.helpers.getBinaryDataBuffer(0, 'attachment');\n\nreturn [{\n  json: {\n    ...item.json,\n    image_data_url: `data:${mime};base64,${buffer.toString('base64')}`,\n  },\n  binary: item.binary,\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -1008
+      ],
+      "id": "e6cfb538-ee28-4fee-bd67-207fff4646c0",
+      "name": "Prepare image for Qwen"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vision Endpoint Config').first().json.qwen_chat_url }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: \"qwen3-vl:4b-instruct-q4_K_M\",\n  stream: false,\n  keep_alive: \"30m\",\n  options: { temperature: 0 },\n  messages: [{\n    role: \"user\",\n    content: \"You are examining a screenshot attached to an IT support ticket. Report only what is visibly shown: the application or operating system, any error messages copied exactly, any error codes, and what state the screen is in. Do not guess the cause and do not suggest fixes. If text is unreadable, say so.\",\n    images: [ $json.image_data_url.split(\",\")[1] ]\n  }]\n}) }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1120,
+        -1008
+      ],
+      "id": "b5a00b39-4d4b-44fd-8372-dc87d77cb52b",
+      "name": "Qwen vision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f846b4e-64c1-4ce1-ba65-6cf9e2664ec0",
+              "name": "request_id",
+              "value": "={{ $json.request_id }}",
+              "type": "string"
+            },
+            {
+              "id": "62dd35a2-c549-4886-b252-0bb2754f08ff",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "505eb44a-1e2e-44c2-88cd-13aecbbbd2aa",
+              "name": "description",
+              "value": "={{ $json.description }}",
+              "type": "string"
+            },
+            {
+              "id": "a2e3b4aa-af34-4331-be70-235b4f76699d",
+              "name": "vision_description",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "8e3f9d4f-2060-487f-a4ab-81f0b5d2243c",
+              "name": "vision_model",
+              "value": "none",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1088,
+        -816
+      ],
+      "id": "329ab31f-29b8-43fc-abff-d22b4c0c5966",
+      "name": "Map Text-Only"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b8ecd66d-77bd-4432-9505-d24682018dce",
+              "name": "qwen_chat_url",
+              "value": "https://YOUR-TRY-CLOUDFLARE-URL/api/chat",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        880,
+        -1200
+      ],
+      "id": "95936e72-a2bf-4de0-8626-6f8f3137d5a5",
+      "name": "Vision Endpoint Config"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({contents:[{role:'user',parts:[{text:\"You are examining a screenshot attached to an IT support ticket. Report only the visible application or operating system, exact error messages, error codes, and screen state. Do not guess causes or suggest fixes. If text is unreadable, say so.\"},{inline_data:{mime_type:$('Prepare image for Qwen').first().json.image_data_url.split(';')[0].split(':')[1],data:$('Prepare image for Qwen').first().json.image_data_url.split(',')[1]}}]}],generationConfig:{temperature:0}}) }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1370,
+        -1200
+      ],
+      "id": "5bbe0610-38f8-407a-84ed-dba86339f49e",
+      "name": "Gemini Vision Fallback",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RESELECT_CREDENTIAL",
+          "name": "Google Gemini API key"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;\nconst text=r.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\\n')||'';\nif(!text)throw new Error('Gemini vision returned no text');\nreturn [{json:{model:'gemini-3.8-flash',message:{role:'assistant',content:text}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        -1200
+      ],
+      "id": "8deb69b0-bde1-462d-8543-7cb588c27bdc",
+      "name": "Normalize Gemini Vision Output"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({model:'gpt-4o-mini',temperature:0,messages:[{role:'user',content:[{type:'text',text:\"You are examining a screenshot attached to an IT support ticket. Report only the visible application or operating system, exact error messages, error codes, and screen state. Do not guess causes or suggest fixes. If text is unreadable, say so.\"},{type:'image_url',image_url:{url:$('Prepare image for Qwen').first().json.image_data_url,detail:'high'}}]}]}) }}",
+        "options": {
+          "timeout": 45000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        -1000
+      ],
+      "id": "32f3aa2c-51e5-4f28-a20d-971ab65af3f9",
+      "name": "OpenAI Vision Fallback",
+      "authentication": "predefinedCredentialType",
+      "nodeCredentialType": "openAiApi",
+      "credentials": {
+        "openAiApi": {
+          "id": "RESELECT_OPENAI_CREDENTIAL",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;\nconst text=r.choices?.[0]?.message?.content;\nif(typeof text!=='string'||!text.trim())throw new Error('OpenAI vision returned no text');\nreturn [{json:{model:'gpt-4o-mini',message:{role:'assistant',content:text}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        -1000
+      ],
+      "id": "b00d9b34-86a6-4c7e-bbee-65f8d80062ee",
+      "name": "Normalize OpenAI Vision Output"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input=$input.first().json;\nconst categoryPairs=[['network & vpn','network_vpn'],['network_vpn','network_vpn'],['authentication & access','auth_access'],['auth_access','auth_access'],['email & communication','email_communication'],['email_communication','email_communication'],['software & applications','software_apps'],['software_apps','software_apps'],['system & os','system_os'],['system_os','system_os'],['other / out of scope','other'],['other','other']];\nconst categories=new Map(categoryPairs);\nconst labels={'vpn authentication failure':'vpn_auth_failure','vpn connection failure':'vpn_connection_failure','wi-fi connectivity issue':'wifi_connectivity','wifi connectivity issue':'wifi_connectivity','dns/network configuration error':'dns_network_config','internet connection problem':'internet_connection','wrong/expired password':'wrong_expired_password','account locked':'account_locked','mfa/authentication failure':'mfa_failure','permission denied':'permission_denied','access to restricted resource':'restricted_resource_access','cannot send email':'cannot_send_email','cannot receive email':'cannot_receive_email','email authentication failure':'email_auth_failure','mailbox/storage full':'mailbox_full','email client configuration problem':'email_client_config','application wont launch':'app_wont_launch','application crash':'app_crash','installation failure':'installation_failure','application configuration error':'app_config_error','software update failure':'software_update_failure','windows/system error':'system_error','driver problem':'driver_problem','os update failure':'os_update_failure','system performance issue':'performance_issue','hardware-related error':'hardware_error','out of scope':'out_of_scope'};\nconst defaults={network_vpn:'vpn_auth_failure',auth_access:'wrong_expired_password',email_communication:'cannot_send_email',software_apps:'app_wont_launch',system_os:'system_error',other:'out_of_scope'};\nfunction parse(raw){\n const text=String(raw||'').trim();if(!text)return {vision:null,raw_text:'',parsed:false};\n const lines=text.split(/\\r?\\n/);\n const labels=['application or operating system','error message(s)','error codes','state of screen'];\n const header=line=>labels.some(x=>line.trim().toLowerCase().startsWith(x+':'));\n const find=name=>lines.findIndex(x=>x.trim().toLowerCase().startsWith(name+':'));\n const content=index=>{\n  if(index<0)return [];\n  const rest=lines[index].slice(lines[index].indexOf(':')+1).trim();\n  const following=lines.slice(index+1),end=following.findIndex(header);\n  const section=end<0?following:following.slice(0,end);\n  return [rest,...section].map(x=>x.trim()).filter(Boolean);\n };\n const appIndex=find('application or operating system'),errorIndex=find('error message(s)'),codeIndex=find('error codes'),stateIndex=find('state of screen');\n const recognized=appIndex>=0||errorIndex>=0||codeIndex>=0||stateIndex>=0;\n const firstValue=index=>index<0?null:lines[index].slice(lines[index].indexOf(':')+1).trim();\n const clean=value=>!value||/^(not visible|none|n\\/a|unknown)\\.?$/i.test(value)?null:value;\n const messages=content(errorIndex,'error message(s)').map(x=>x.replace(/^[-*]\\s*/,'').replace(/\"/g,'').trim()).filter(Boolean);\n const errorText=messages.length?messages.join('; '):null;\n const codes=content(codeIndex,'error codes').join(' ').trim();\n const state=content(stateIndex,'state of screen').join(' ').trim();\n const app=clean(firstValue(appIndex)),code=clean(codes||firstValue(codeIndex));\n const unreadable=/unreadable|not readable/i.test(text);\n const found=Boolean(app||errorText||code||state);\n const observation=state||(!recognized?text:null);\n return {raw_text:text,parsed:recognized,vision:{usable:Boolean(recognized&&found&&!unreadable),image_quality:unreadable?'poor':(found?'good':'unknown'),application:app,error_text:errorText||(!recognized?text:null),error_code:code,observations:observation?[observation]:[],contradictions:[],confidence:errorText?0.8:0.5,parse_ok:recognized}};\n}\nconst parsed=parse(input.vision_description||'');\nconst category=categories.get(String(input.category||'').trim().toLowerCase())||'other';\nconst label=String(input.subcategory||'').trim().toLowerCase().replace(/'/g,'');\nconst subcategory=labels[label]||defaults[category];\nconst title=String(input.title||'').trim(),description=String(input.description||'').trim();\nreturn [{json:{request_id:input.request_id||null,title,description,user_text:[title,description].filter(Boolean).join('\\n'),language:input.language||null,vision:parsed.vision,vision_raw_text:parsed.raw_text,vision_model:input.vision_model||'none',classifier_hint:{category,subcategory,confidence:Number(input.confidence)||0},classifier_confidence:Number(input.confidence)||0,triage:{category,subcategory,urgency:'medium',confidence:Number(input.confidence)||0,search_query:'',is_sensitive:false,needs_clarification:false,language:input.language||null}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2220,
+        -816
+      ],
+      "id": "3bd70ae7-c5f0-4b34-b42a-7b48ca2d8c9a",
+      "name": "Normalize & Parse Vision"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Extract & Route"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2460,
+        -816
+      ],
+      "id": "4d1cfa71-2315-419f-9f80-eaddea6b7e4d",
+      "name": "Extract & Route"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const base=$input.first().json;\nconst cats={network_vpn:['vpn_auth_failure','vpn_connection_failure','wifi_connectivity','dns_network_config','internet_connection'],auth_access:['wrong_expired_password','account_locked','mfa_failure','permission_denied','restricted_resource_access'],email_communication:['cannot_send_email','cannot_receive_email','email_auth_failure','mailbox_full','email_client_config'],software_apps:['app_wont_launch','app_crash','installation_failure','app_config_error','software_update_failure'],system_os:['system_error','driver_problem','os_update_failure','performance_issue','hardware_error'],other:['out_of_scope']};\nconst patterns=[/\\bhack(?:ed|ing)?\\b/i,/compromis(?:ed|e)|pirat(?:ed|age)/i,/phishing|hame[cç]onn/i,/ransomware|ran[cç]ongiciel/i,/malware|trojan|virus/i,/data (?:leak|breach)/i,/stolen (?:laptop|phone|device)/i,/unauthori[sz]ed (?:access|login)/i,/unexpected (?:mfa|multi.factor) (?:prompt|approval)/i,/suspicious (?:login|activity)/i,/password.{0,20}(?:leak|exposed|stolen)/i,/api.?key|access token.{0,20}(?:leak|exposed)/i];\nconst text=[base.user_text,base.vision_raw_text].join('\\n'),hit=patterns.find(p=>p.test(text));\nconst g=base.triage||{},category=cats[g.category]?g.category:'other';\nconst subcategory=cats[category].includes(g.subcategory)?g.subcategory:(category==='other'?'out_of_scope':cats[category][0]);\nconst confidence=Math.max(0,Math.min(1,Number(g.confidence)||0));\nconst vague=base.user_text.trim().length<18||/^(help|broken|not working|it doesn't work|ça ne marche pas)[.! ]*$/i.test(base.user_text.trim());\nconst reliable=category!=='other'&&confidence>=0.7;\nconst sensitive=Boolean(g.is_sensitive)||Boolean(hit);\nconst language=['en','fr'].includes(String(g.language||'').toLowerCase())?g.language:(base.language||'en');\nconst triage={...g,category,subcategory,confidence,language,is_sensitive:sensitive,\n urgency:sensitive?(/ransomware|data (?:leak|breach)|account.{0,20}(?:hack|compromis)|\\bhack(?:ed|ing)?\\b/i.test(text)?'critical':'high'):(['low','medium','high','critical'].includes(g.urgency)?g.urgency:'medium'),\n needs_clarification:Boolean(g.needs_clarification)||(!reliable&&vague)||(!base.vision?.usable&&/unreadable|not readable/i.test(base.vision_raw_text||'')),\n search_query:String(g.search_query||[base.user_text,base.vision?.error_text,base.vision?.application].filter(Boolean).join(' ')),\n sensitivity_reason:hit?'Forced by deterministic security keyword':g.sensitivity_reason||null};\nconst route_action=sensitive?'ticket':triage.needs_clarification?'clarify':reliable?'answer':'ticket';\nreturn [{json:{...base,triage,route_action,category_reliable:reliable,security_keyword:hit?hit.source:null}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        -816
+      ],
+      "id": "bce9849a-5bce-4481-85eb-3bcb54101206",
+      "name": "Route Safety & Confidence"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6f861251-4952-4f97-96d6-503666f6924f",
+              "leftValue": "={{ $json.triage.is_sensitive }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2940,
+        -816
+      ],
+      "id": "e3587c3c-880a-4e2b-83ed-e855f43de66d",
+      "name": "Sensitive incident?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ecde696d-0dab-42d1-ab72-03ed0731621f",
+              "leftValue": "={{ $json.triage.needs_clarification }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3180,
+        -720
+      ],
+      "id": "22fdea02-15c4-4744-8e71-0a36cc6c18d7",
+      "name": "Needs clarification?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c5f40054-52e0-417b-ab2b-8569486dbfda",
+              "leftValue": "={{ $json.category_reliable && $json.triage.category !== \"other\" }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3420,
+        -600
+      ],
+      "id": "2ba6f5d6-d423-4b3a-b509-ae3b9e71d46e",
+      "name": "Category reliable?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "061dcdcf-55c2-46ae-8217-d2d5457f8333",
+              "leftValue": "={{ $json.relevance_ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4380,
+        -400
+      ],
+      "id": "654c6f37-ad57-4a6d-b66d-73cfb0c0cc91",
+      "name": "Relevant after retrieval (1)?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b6b46e1b-f093-48d7-b083-5d84dd328658",
+              "leftValue": "={{ $json.relevance_ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5340,
+        -250
+      ],
+      "id": "62c167de-f7a9-46f4-9197-641a4d6a5518",
+      "name": "Relevant after retrieval (2)?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "38191889-a889-47c1-9203-de89007c9922",
+              "leftValue": "={{ $json.verdict === \"approve\" }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4140,
+        -1100
+      ],
+      "id": "3a54f0db-7f13-4607-a7fd-69ae12660145",
+      "name": "Ticket approved?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bf470e14-fb27-46be-a96f-d7b3a33acb5e",
+              "leftValue": "={{ $json.verdict === \"regenerate\" && (($json.sanitized_dossier?.attempt_counts?.regenerate ?? 0) < 1) && (($json.sanitized_dossier?.attempt_counts?.total ?? 0) < 2) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4380,
+        -980
+      ],
+      "id": "a56b2a43-8d96-40ca-8b89-75eeb8cb163d",
+      "name": "Ticket regeneration allowed?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "109494f9-58bf-45a8-9af7-3e39577b680d",
+              "leftValue": "={{ $json.verdict === \"approve\" }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5340,
+        -980
+      ],
+      "id": "9111e503-df8f-4159-a96a-1f512cc8a64d",
+      "name": "Ticket retry approved?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ba30b897-0bbd-4094-a39b-5c5f8320e12d",
+              "leftValue": "={{ $json.relevance_ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7980,
+        -300
+      ],
+      "id": "eb8de18c-6a27-4c28-a15d-07a904c3dba4",
+      "name": "Validator retry relevant?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2933772c-6d40-4612-a607-d6c166d43440",
+                    "leftValue": "={{ $json.workflow_action }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c27df19d-e321-4cd0-a7df-340493de59cf",
+                    "leftValue": "={{ $json.workflow_action }}",
+                    "rightValue": "retry_retrieval",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "retry_retrieval"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7ea2b815-62df-4aec-bfa9-b1c1c56bceb3",
+                    "leftValue": "={{ $json.workflow_action }}",
+                    "rightValue": "regenerate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "regenerate"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c529f303-50bc-4b60-968b-65ba341d70ed",
+                    "leftValue": "={{ $json.workflow_action }}",
+                    "rightValue": "clarify",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "clarify"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "85adb70b-83c7-45c5-a0b8-1a72ed086617",
+                    "leftValue": "={{ $json.workflow_action }}",
+                    "rightValue": "ticket",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ticket"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true,
+          "allMatchingOutputs": false
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        6540,
+        -400
+      ],
+      "id": "c25f1ecd-0e86-4b5c-a5e5-187030393410",
+      "name": "Switch answer verdict"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({status:'needs_clarification',question:$json.triage.clarification_question || 'Could you share the exact error message and the application or device involved?'}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        3420,
+        -900
+      ],
+      "id": "cf175ba6-4a19-4b07-81de-cd02db930a59",
+      "name": "Respond clarification"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({status:'resolved',solution:$json.sanitized_dossier.draft_answer,sources:($json.sanitized_dossier.draft_answer.steps||[]).flatMap(s=>s.source_ids||[])}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        6780,
+        -500
+      ],
+      "id": "6d3ef0ea-fc2c-4c02-b3fd-07f1df819da1",
+      "name": "Respond approved solution"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({status:'needs_clarification',question:$json.feedback_for_stage||$json.reason||'Please provide the exact error message and application involved.'}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        7020,
+        -400
+      ],
+      "id": "8205d474-e978-4757-a584-f59a054e6f67",
+      "name": "Respond validator clarification"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;\nreturn [{json:{mode:'ticket',request_id:r.request_id,user_text:r.user_text,language:r.triage.language,vision:r.vision,triage:r.triage,retrieval:{query:r.triage.search_query,chunks:[],attempts:0},attempt_counts:{retry_retrieval:0,regenerate:0,total:0}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3180,
+        -1100
+      ],
+      "id": "5b79f05a-a5e6-4690-9f4a-743c9a58d226",
+      "name": "Build direct ticket context"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;return [{json:{query:r.triage.search_query,category:r.triage.category,top_k:5}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3660,
+        -400
+      ],
+      "id": "8097092f-46d8-4786-9a5f-7e84cc63215a",
+      "name": "Build retrieval input (1)"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "RAG Retrieve"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3900,
+        -400
+      ],
+      "id": "8ffb06c6-cb0d-47e6-8b95-effd1a4701cd",
+      "name": "Call RAG Retrieve (1)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const points=$input.first().json.chunks||[],r=$('Route Safety & Confidence').first().json;\nconst enough=points.filter(p=>Number(p.score)>=0.48).length>=2,top=points.length>0&&points[0].category===r.triage.category;\nreturn [{json:{...r,retrieval:{query:$('Build retrieval input (1)').first().json.query,chunks:points,attempts:1},relevance_ok:enough&&top,relevance_reason:!enough?'fewer than two passages scored >=0.48':'top-1 category differs from Triage'}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4140,
+        -400
+      ],
+      "id": "096f5e36-a99b-416b-a43c-e10bc774e807",
+      "name": "Check relevance (1)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$('Check relevance (1)').first().json,err=r.vision?.error_text;\nconst query=[r.triage.search_query,err?`error \"${err}\" troubleshooting`:'specific error troubleshooting'].filter(Boolean).join(' ').replace(/\\s+/g,' ').trim();\nreturn [{json:{query,category:r.triage.category,top_k:5}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4620,
+        -250
+      ],
+      "id": "6bce627f-7d3e-47f9-b713-96f0d8b65a80",
+      "name": "Build retrieval input (2)"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "RAG Retrieve"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4860,
+        -250
+      ],
+      "id": "8c3754e5-a8d3-4d8b-80e0-eaf7552d01e8",
+      "name": "Call RAG Retrieve (2)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const points=$input.first().json.chunks||[],r=$('Route Safety & Confidence').first().json;\nconst enough=points.filter(p=>Number(p.score)>=0.48).length>=2,top=points.length>0&&points[0].category===r.triage.category;\nreturn [{json:{...r,retrieval:{query:$('Build retrieval input (2)').first().json.query,chunks:points,attempts:2},relevance_ok:enough&&top,relevance_reason:!enough?'fewer than two passages scored >=0.48':'top-1 category differs from Triage'}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5100,
+        -250
+      ],
+      "id": "aaf62e80-436f-43ba-9c22-7d3a9159ce02",
+      "name": "Check relevance (2)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;\nreturn [{json:{mode:'answer',request_id:r.request_id,user_text:r.user_text,language:r.triage.language,vision:r.vision,triage:r.triage,retrieval:r.retrieval,attempt_counts:{retry_retrieval:0,regenerate:0,total:0}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4620,
+        -500
+      ],
+      "id": "1c643984-a036-439b-8bf3-5d1ab81d0d45",
+      "name": "Build answer context (1)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;\nreturn [{json:{mode:'answer',request_id:r.request_id,user_text:r.user_text,language:r.triage.language,vision:r.vision,triage:r.triage,retrieval:r.retrieval,attempt_counts:{retry_retrieval:1,regenerate:0,total:1}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5580,
+        -150
+      ],
+      "id": "126a854e-2e33-4576-b637-f84c21285bb4",
+      "name": "Build answer context (2)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$input.first().json;\nreturn [{json:{mode:'ticket',request_id:r.request_id,user_text:r.user_text,language:r.triage.language,vision:r.vision,triage:r.triage,retrieval:r.retrieval,attempt_counts:{retry_retrieval:1,regenerate:0,total:1},ticket_reason:r.relevance_reason}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5580,
+        50
+      ],
+      "id": "7fdc618c-27ec-4110-aed3-01cf68ea3c2e",
+      "name": "Build ticket context (weak evidence)"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Resolution Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        5820,
+        -400
+      ],
+      "id": "1236e721-36fc-416a-8234-6de250393841",
+      "name": "Call Resolution Agent"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Ticket Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3900,
+        -1100
+      ],
+      "id": "22ffa5e1-3575-41a4-aab3-3f7534bf13ae",
+      "name": "Call Ticket Agent"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Final Validator"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4140,
+        -1100
+      ],
+      "id": "27bb19d9-0df8-41ba-83c4-736af834838f",
+      "name": "Call Validator (ticket)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const v=$input.first().json,d=v.sanitized_dossier;\nif(!d)throw new Error('Validator returned no sanitized ticket dossier');\nreturn [{json:{...d,feedback_for_stage:v.feedback_for_stage||v.reason||'Regenerate a complete secret-free ticket.',attempt_counts:{...d.attempt_counts,regenerate:1,total:(d.attempt_counts?.total||0)+1}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4620,
+        -980
+      ],
+      "id": "655c1352-37de-424d-982d-df0788893131",
+      "name": "Prepare ticket regeneration"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Ticket Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4860,
+        -980
+      ],
+      "id": "54e60eb1-c4bf-4e2c-bb47-8fdf0abe4736",
+      "name": "Regenerate Ticket Once"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Final Validator"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        5100,
+        -980
+      ],
+      "id": "a4f2cab0-2dc8-440d-8a3d-d91bc18b7c58",
+      "name": "Call Validator (ticket retry)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "throw new Error('Final Validator did not approve ticket after one regeneration; Error Workflow will create a minimal fallback ticket.');"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5580,
+        -900
+      ],
+      "id": "fc4d2274-04eb-4f67-b199-0b5464b64554",
+      "name": "Fail closed on unapproved ticket"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const v=$input.first().json,d=v.sanitized_dossier;\nif(!d||d.mode!=='ticket'||!d.draft_ticket)throw new Error('Approved ticket dossier is missing');\nconst t=d.draft_ticket,requestId=String(d.request_id||'unknown');\nreturn [{json:{ticket_number:`SOL-${requestId.slice(0,8)}-${Date.now()}`,request_id:requestId,created_at:new Date().toISOString(),priority:t.priority,title:t.title,summary:t.summary,payload_json:JSON.stringify(d)}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5580,
+        -1150
+      ],
+      "id": "a45badd6-e55e-4c0e-b91e-c30873aead73",
+      "name": "Prepare approved ticket row"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "solvey_tickets",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        5820,
+        -1150
+      ],
+      "id": "5e3e370e-c08e-498e-8132-ad749467a509",
+      "name": "Create ticket in Data Table"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({status:'ticket_created',ticket_number:$('Prepare approved ticket row').first().json.ticket_number}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        6060,
+        -1150
+      ],
+      "id": "99bb94d5-1d03-43f7-b1e3-6dc7eb397f48",
+      "name": "Respond ticket created"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "Final Validator"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        6060,
+        -400
+      ],
+      "id": "8d2aba8f-b670-430c-9d3f-c1d07a6625d1",
+      "name": "Call Validator (answer)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const result=$input.first().json,d=result.sanitized_dossier||{},c=d.attempt_counts||{};\nlet action='ticket';\nif(result.verdict==='approve')action='approve';\nelse if(result.verdict==='clarify')action='clarify';\nelse if(result.verdict==='retry_retrieval'&&Number(c.retry_retrieval||0)<1&&Number(c.total||0)<2)action='retry_retrieval';\nelse if(result.verdict==='regenerate'&&Number(c.regenerate||0)<1&&Number(c.total||0)<2)action='regenerate';\nreturn [{json:{...result,workflow_action:action}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6300,
+        -400
+      ],
+      "id": "17526626-ed74-4352-b97c-c261d6b03bf7",
+      "name": "Route answer verdict"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const result=$input.first().json,d=result.sanitized_dossier;\nif(!d)throw new Error('Validator retry lacks sanitized dossier');\nconst query=[d.retrieval?.query||d.triage?.search_query||d.user_text,String(result.feedback_for_stage||'').slice(0,240),'specific error troubleshooting'].filter(Boolean).join(' ');\nreturn [{json:{query,category:d.triage.category,top_k:5,context:d}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7260,
+        -300
+      ],
+      "id": "f9a66714-a6df-433e-8ad6-85003ddaad7e",
+      "name": "Build validator retry retrieval"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RESELECT_AFTER_IMPORT",
+          "mode": "list",
+          "cachedResultName": "RAG Retrieve"
+        },
+        "workflowInputs": {
+          "mappingMode": "passthrough"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        7500,
+        -300
+      ],
+      "id": "a53c0409-c6f4-4a25-afc5-c2dba33c1312",
+      "name": "Call RAG Retrieve (validator retry)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const response=$input.first().json,req=$('Build validator retry retrieval').first().json,chunks=response.chunks||[];\nconst ok=chunks.filter(c=>Number(c.score)>=0.48).length>=2&&chunks.length>0&&chunks[0].category===req.category;\nreturn [{json:{...req.context,retrieval:{query:req.query,chunks,attempts:2},relevance_ok:ok}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7740,
+        -300
+      ],
+      "id": "7fd69fd2-c587-4ae0-9f83-af83dd22aed1",
+      "name": "Check validator retry relevance"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const d=$input.first().json;\nreturn [{json:{...d,mode:'answer',attempt_counts:{...d.attempt_counts,retry_retrieval:1,total:(d.attempt_counts?.total||0)+1}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8220,
+        -300
+      ],
+      "id": "09ea6854-7c27-40c2-a7f2-7de600479d13",
+      "name": "Build answer context (validator retry)"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const v=$input.first().json,d=v.sanitized_dossier;\nif(!d)throw new Error('Regeneration lacks sanitized dossier');\nreturn [{json:{...d,feedback_for_stage:v.feedback_for_stage||v.reason,attempt_counts:{...d.attempt_counts,regenerate:(d.attempt_counts?.regenerate||0)+1,total:(d.attempt_counts?.total||0)+1}}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7500,
+        0
+      ],
+      "id": "b685eea2-b836-4126-b909-7bb6c3652ffd",
+      "name": "Build answer regeneration input"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const v=$input.first().json,d=v.sanitized_dossier||{};\nreturn [{json:{mode:'ticket',request_id:d.request_id,user_text:d.user_text,language:d.language,vision:d.vision,triage:d.triage,retrieval:d.retrieval||{query:'',chunks:[],attempts:0},attempt_counts:d.attempt_counts||{retry_retrieval:0,regenerate:0,total:0},ticket_reason:v.reason||v.feedback_for_stage||'Validator escalated the answer.'}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7500,
+        150
+      ],
+      "id": "7e740373-c50c-4d78-8c14-3212796f8eac",
+      "name": "Build ticket context (answer escalation)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Request": {
+      "main": [
+        [
+          {
+            "node": "Image provided?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare image for Qwen": {
+      "main": [
+        [
+          {
+            "node": "Vision Endpoint Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Qwen vision Output": {
+      "main": [
+        [
+          {
+            "node": "Mock DistilBERT Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Text-Only": {
+      "main": [
+        [
+          {
+            "node": "Mock DistilBERT Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock DistilBERT Output": {
+      "main": [
+        [
+          {
+            "node": "Low Confidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Parse Vision": {
+      "main": [
+        [
+          {
+            "node": "Extract & Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract & Route": {
+      "main": [
+        [
+          {
+            "node": "Route Safety & Confidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Safety & Confidence": {
+      "main": [
+        [
+          {
+            "node": "Sensitive incident?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build direct ticket context": {
+      "main": [
+        [
+          {
+            "node": "Call Ticket Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build retrieval input (1)": {
+      "main": [
+        [
+          {
+            "node": "Call RAG Retrieve (1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call RAG Retrieve (1)": {
+      "main": [
+        [
+          {
+            "node": "Check relevance (1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check relevance (1)": {
+      "main": [
+        [
+          {
+            "node": "Relevant after retrieval (1)?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build retrieval input (2)": {
+      "main": [
+        [
+          {
+            "node": "Call RAG Retrieve (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call RAG Retrieve (2)": {
+      "main": [
+        [
+          {
+            "node": "Check relevance (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check relevance (2)": {
+      "main": [
+        [
+          {
+            "node": "Relevant after retrieval (2)?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build answer context (1)": {
+      "main": [
+        [
+          {
+            "node": "Call Resolution Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build answer context (2)": {
+      "main": [
+        [
+          {
+            "node": "Call Resolution Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Resolution Agent": {
+      "main": [
+        [
+          {
+            "node": "Call Validator (answer)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Validator (answer)": {
+      "main": [
+        [
+          {
+            "node": "Route answer verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route answer verdict": {
+      "main": [
+        [
+          {
+            "node": "Switch answer verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build validator retry retrieval": {
+      "main": [
+        [
+          {
+            "node": "Call RAG Retrieve (validator retry)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call RAG Retrieve (validator retry)": {
+      "main": [
+        [
+          {
+            "node": "Check validator retry relevance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check validator retry relevance": {
+      "main": [
+        [
+          {
+            "node": "Validator retry relevant?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build answer context (validator retry)": {
+      "main": [
+        [
+          {
+            "node": "Call Resolution Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build answer regeneration input": {
+      "main": [
+        [
+          {
+            "node": "Call Resolution Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build ticket context (weak evidence)": {
+      "main": [
+        [
+          {
+            "node": "Call Ticket Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build ticket context (answer escalation)": {
+      "main": [
+        [
+          {
+            "node": "Call Ticket Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Ticket Agent": {
+      "main": [
+        [
+          {
+            "node": "Call Validator (ticket)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Validator (ticket)": {
+      "main": [
+        [
+          {
+            "node": "Ticket approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare ticket regeneration": {
+      "main": [
+        [
+          {
+            "node": "Regenerate Ticket Once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Regenerate Ticket Once": {
+      "main": [
+        [
+          {
+            "node": "Call Validator (ticket retry)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Validator (ticket retry)": {
+      "main": [
+        [
+          {
+            "node": "Ticket retry approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare approved ticket row": {
+      "main": [
+        [
+          {
+            "node": "Create ticket in Data Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ticket in Data Table": {
+      "main": [
+        [
+          {
+            "node": "Respond ticket created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Normalize Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image provided?": {
+      "main": [
+        [
+          {
+            "node": "Prepare image for Qwen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Map Text-Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vision Endpoint Config": {
+      "main": [
+        [
+          {
+            "node": "Qwen vision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen vision": {
+      "main": [
+        [
+          {
+            "node": "Mock Qwen vision Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini Vision Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Vision Fallback": {
+      "main": [
+        [
+          {
+            "node": "Normalize Gemini Vision Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI Vision Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Gemini Vision Output": {
+      "main": [
+        [
+          {
+            "node": "Mock Qwen vision Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Vision Fallback": {
+      "main": [
+        [
+          {
+            "node": "Normalize OpenAI Vision Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize OpenAI Vision Output": {
+      "main": [
+        [
+          {
+            "node": "Mock Qwen vision Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low Confidence": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Parse Vision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize & Parse Vision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sensitive incident?": {
+      "main": [
+        [
+          {
+            "node": "Build direct ticket context",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Needs clarification?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs clarification?": {
+      "main": [
+        [
+          {
+            "node": "Respond clarification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Category reliable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category reliable?": {
+      "main": [
+        [
+          {
+            "node": "Build retrieval input (1)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build direct ticket context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relevant after retrieval (1)?": {
+      "main": [
+        [
+          {
+            "node": "Build answer context (1)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build retrieval input (2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relevant after retrieval (2)?": {
+      "main": [
+        [
+          {
+            "node": "Build answer context (2)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build ticket context (weak evidence)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch answer verdict": {
+      "main": [
+        [
+          {
+            "node": "Respond approved solution",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build validator retry retrieval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build answer regeneration input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond validator clarification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build ticket context (answer escalation)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build ticket context (answer escalation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validator retry relevant?": {
+      "main": [
+        [
+          {
+            "node": "Build answer context (validator retry)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build ticket context (answer escalation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket approved?": {
+      "main": [
+        [
+          {
+            "node": "Prepare approved ticket row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ticket regeneration allowed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket regeneration allowed?": {
+      "main": [
+        [
+          {
+            "node": "Prepare ticket regeneration",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail closed on unapproved ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket retry approved?": {
+      "main": [
+        [
+          {
+            "node": "Prepare approved ticket row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail closed on unapproved ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fail closed on unapproved ticket": {
+      "main": []
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "7f37882c-98ca-4ddd-9d69-fad2bb7d1289",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b79af804b90b4a1e9210d698d20baa4c8c43a67d6e660368ac6dd1c10d479a7e"
+  },
+  "nodeGroups": [],
+  "id": "mFSTuiQySNsATPhs",
+  "tags": []
+}
