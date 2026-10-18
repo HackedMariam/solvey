@@ -1,0 +1,135 @@
+[
+  {
+    "id": "EVAL-01",
+    "name": "Docker Port Conflict (Full Multimodal)",
+    "expected_outcome": "escalated",
+    "expected_priority": "High",
+    "payload": {
+      "case_id": "CASE-EVAL-01",
+      "user_request": "Docker container fails to start because port 8080 is already allocated.",
+      "vision_findings": {
+        "observations": ["Terminal displays a port allocation error"],
+        "extracted_text": "Bind for 0.0.0.0:8080 failed: port is already allocated",
+        "confidence": 0.95
+      },
+      "triage": {
+        "category": "Docker",
+        "subcategory": "Port conflict",
+        "urgency": "high",
+        "confidence": 0.92
+      },
+      "rag": {
+        "status": "documents_found",
+        "document_count": 2,
+        "sources": ["Docker networking troubleshooting guide"],
+        "findings": ["Another process or container may already be using port 8080."]
+      },
+      "resolution": {
+        "status": "failed",
+        "attempted_steps": [
+          "Checked the container logs",
+          "Attempted to restart the container"
+        ],
+        "user_feedback": "The container still fails to start."
+      },
+      "escalation": {
+        "required": true,
+        "reason": "The documented troubleshooting steps did not resolve the issue."
+      }
+    }
+  },
+  {
+    "id": "EVAL-02",
+    "name": "Unknown Error (Zero RAG Docs Found)",
+    "expected_outcome": "escalated",
+    "expected_priority": "Medium",
+    "payload": {
+      "case_id": "CASE-EVAL-02",
+      "user_request": "Internal payroll script fails with unrecognized error 0x899A.",
+      "triage": {
+        "category": "Payroll",
+        "urgency": "medium"
+      },
+      "rag": {
+        "status": "no_documents_found",
+        "document_count": 0,
+        "sources": [],
+        "findings": []
+      },
+      "escalation": {
+        "required": true,
+        "reason": "No documentation exists for error 0x899A; requires senior application engineer."
+      }
+    }
+  },
+  {
+    "id": "EVAL-03",
+    "name": "Critical Infrastructure Outage",
+    "expected_outcome": "escalated",
+    "expected_priority": "Highest",
+    "payload": {
+      "case_id": "CASE-EVAL-03",
+      "user_request": "Production Redis cluster node is unresponsive.",
+      "triage": {
+        "category": "Database",
+        "urgency": "critical"
+      },
+      "resolution": {
+        "status": "failed",
+        "attempted_steps": ["Pinged server IP", "Checked systemd status"],
+        "user_feedback": "Server refuses connection entirely."
+      },
+      "escalation": {
+        "required": true,
+        "reason": "Production Redis node outage causing cache failovers."
+      }
+    }
+  },
+  {
+    "id": "EVAL-04",
+    "name": "Minimal Input (Missing Optional Vision & RAG)",
+    "expected_outcome": "escalated",
+    "expected_priority": "Medium",
+    "payload": {
+      "case_id": "CASE-EVAL-04",
+      "user_request": "Need permissions to access finance shared folder.",
+      "escalation": {
+        "required": true,
+        "reason": "Folder access requires IT Admin approval."
+      }
+    }
+  },
+  {
+    "id": "EVAL-05",
+    "name": "Resolved Case (Escalation Not Required)",
+    "expected_outcome": "skipped",
+    "expected_priority": null,
+    "payload": {
+      "case_id": "CASE-EVAL-05",
+      "user_request": "Forgot password for VPN.",
+      "triage": {
+        "category": "Network",
+        "urgency": "low"
+      },
+      "resolution": {
+        "status": "resolved",
+        "attempted_steps": ["Guided user through self-service password reset portal"],
+        "user_feedback": "Password reset successfully."
+      },
+      "escalation": {
+        "required": false,
+        "reason": "Resolved by automated self-service guide."
+      }
+    }
+  },
+  {
+    "id": "EVAL-06",
+    "name": "Invalid Payload (Missing Escalation Decision)",
+    "expected_outcome": "error",
+    "expected_priority": null,
+    "payload": {
+      "case_id": "CASE-EVAL-06",
+      "user_request": "Laptop touchpad not responding."
+    }
+  }
+]

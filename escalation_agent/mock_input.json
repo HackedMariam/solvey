@@ -1,0 +1,39 @@
+{
+  "case_id": "CASE-001",
+  "user_request": "Docker container fails to start because port 8080 is already allocated.",
+  "vision_findings": {
+    "observations": [
+      "Terminal displays a port allocation error"
+    ],
+    "extracted_text": "Bind for 0.0.0.0:8080 failed: port is already allocated",
+    "confidence": 0.95
+  },
+  "triage": {
+    "category": "Docker",
+    "subcategory": "Port conflict",
+    "urgency": "high",
+    "confidence": 0.92
+  },
+  "rag": {
+    "status": "documents_found",
+    "document_count": 2,
+    "sources": [
+      "Docker networking troubleshooting guide"
+    ],
+    "findings": [
+      "Another process or container may already be using port 8080."
+    ]
+  },
+  "resolution": {
+    "status": "failed",
+    "attempted_steps": [
+      "Checked the container logs",
+      "Attempted to restart the container"
+    ],
+    "user_feedback": "The container still fails to start."
+  },
+  "escalation": {
+    "required": true,
+    "reason": "The documented troubleshooting steps did not resolve the issue."
+  }
+}
