@@ -1181,7 +1181,7 @@
           "__rl": true,
           "value": "RESELECT_AFTER_IMPORT",
           "mode": "list",
-          "cachedResultName": "Ticket Agent"
+          "cachedResultName": "Colleague Escalation Agent adapter (draft only)"
         },
         "workflowInputs": {
           "mappingMode": "passthrough"
@@ -1197,7 +1197,7 @@
         -1100
       ],
       "id": "22ffa5e1-3575-41a4-aab3-3f7534bf13ae",
-      "name": "Call Ticket Agent"
+      "name": "Call Colleague Escalation Agent"
     },
     {
       "parameters": {
@@ -1243,7 +1243,7 @@
           "__rl": true,
           "value": "RESELECT_AFTER_IMPORT",
           "mode": "list",
-          "cachedResultName": "Ticket Agent"
+          "cachedResultName": "Colleague Escalation Agent adapter (draft only)"
         },
         "workflowInputs": {
           "mappingMode": "passthrough"
@@ -1259,7 +1259,7 @@
         -980
       ],
       "id": "54e60eb1-c4bf-4e2c-bb47-8fdf0abe4736",
-      "name": "Regenerate Ticket Once"
+      "name": "Regenerate Ticket Once with Colleague Agent"
     },
     {
       "parameters": {
@@ -1607,7 +1607,7 @@
       "main": [
         [
           {
-            "node": "Call Ticket Agent",
+            "node": "Call Colleague Escalation Agent",
             "type": "main",
             "index": 0
           }
@@ -1794,7 +1794,7 @@
       "main": [
         [
           {
-            "node": "Call Ticket Agent",
+            "node": "Call Colleague Escalation Agent",
             "type": "main",
             "index": 0
           }
@@ -1805,18 +1805,7 @@
       "main": [
         [
           {
-            "node": "Call Ticket Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Call Ticket Agent": {
-      "main": [
-        [
-          {
-            "node": "Call Validator (ticket)",
+            "node": "Call Colleague Escalation Agent",
             "type": "main",
             "index": 0
           }
@@ -1838,18 +1827,7 @@
       "main": [
         [
           {
-            "node": "Regenerate Ticket Once",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Regenerate Ticket Once": {
-      "main": [
-        [
-          {
-            "node": "Call Validator (ticket retry)",
+            "node": "Regenerate Ticket Once with Colleague Agent",
             "type": "main",
             "index": 0
           }
@@ -2228,6 +2206,28 @@
         [
           {
             "node": "Respond ticket created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Colleague Escalation Agent": {
+      "main": [
+        [
+          {
+            "node": "Call Validator (ticket)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Regenerate Ticket Once with Colleague Agent": {
+      "main": [
+        [
+          {
+            "node": "Call Validator (ticket retry)",
             "type": "main",
             "index": 0
           }

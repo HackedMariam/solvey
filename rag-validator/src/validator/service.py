@@ -54,7 +54,7 @@ _CATEGORY_LABELS = {
     "software_apps": "Software & Applications",
     "system_os": "System & OS",
     "general": "General",
-    "other": "Other",
+    "other": "Other / out of scope",
 }
 _TICKET_SECTIONS = (
     "Incident Overview",
@@ -73,15 +73,13 @@ def _taxonomy() -> tuple[set[str], dict[str, str]]:
     path = (
         Path(os.getenv("IT_SUPPORT_TAXONOMY_PATH"))
         if os.getenv("IT_SUPPORT_TAXONOMY_PATH")
-        else Path(__file__).resolve().parents[3]
-        / "it-support-langgraph"
+        else Path(__file__).resolve().parents[2]
         / "itsupport"
         / "taxonomy.yaml"
     )
     if not path.is_file():
         raise FileNotFoundError(
-            "Shared taxonomy.yaml was not found. Set IT_SUPPORT_TAXONOMY_PATH "
-            f"to its location; checked {path}"
+            f"Bundled taxonomy.yaml was not found at {path}. Set IT_SUPPORT_TAXONOMY_PATH only to override it."
         )
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     categories: set[str] = set()

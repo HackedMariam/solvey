@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
+import pytest
+
+from eval.validator_node_parity import run_node_parity
 
 WORKFLOW_PATH = Path(__file__).resolve().parents[1] / "n8n" / "rag_retrieve.json"
 
@@ -38,3 +42,10 @@ def test_rag_retrieve_workflow_has_importable_retrieval_path():
     assert connections["Need Unfiltered Fallback?"]["main"][0][0]["node"] == "Qdrant Search (fallback)"
     assert connections["Need Unfiltered Fallback?"]["main"][1][0]["node"] == "Format S1-S5 Response"
     assert nodes["Format S1-S5 Response"]["parameters"]["jsCode"].count("S${index + 1}") == 1
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="Node.js is required for n8n Code-node parity")
+def test_n8n_validator_matches_python_on_validator_cases():
+    results = run_node_parity()
+
+    assert len(results) >= 16

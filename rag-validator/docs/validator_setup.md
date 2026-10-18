@@ -1,51 +1,52 @@
-# Brancher le Validator final dans n8n
+# Validator final autonome dans n8n
 
-Le sous-workflow importable est [`n8n/validator.json`](../n8n/validator.json).
-Il reçoit le dossier complet inchangé, appelle le service Python final
-Validator et retourne son verdict et ses contrôles déterministes. Le Validator
-est le dernier garde-fou dans **les deux parcours** : avant l'envoi d'une
-réponse et avant la création d'un ticket.
+Le sous-workflow importable [`n8n/validator.json`](../n8n/validator.json)
+reçoit le dossier complet et effectue les contrôles en Code JavaScript, puis
+appelle directement les APIs LLM avec des nœuds HTTP Request. Il ne dépend
+d'aucun service FastAPI/Python ni d'une URL Validator externe. La version
+Python dans `src/validator/service.py` reste la référence serveur et
+d'évaluation; les règles embarquées dans n8n sont comparées à celle-ci par
+`eval/validator_node_parity.py`.
 
-## Préparer le service Validator
+## Préparer n8n
 
-1. Installer les dépendances depuis `rag-validator` avec
-   `python -m pip install -r requirements.txt`.
-2. Configurer `GROQ_API_KEY`, `GOOGLE_API_KEY`, `OPENAI_API_KEY` dans `.env`;
-   les identifiants restent côté service, jamais dans le workflow n8n.
-3. Depuis la racine de `rag-validator`, démarrer le service :
+1. Importer `n8n/validator.json`.
+2. Créer/réassigner les credentials `Header Auth` dans les trois nœuds HTTP :
+   Groq (`Authorization: Bearer …`, modèle `openai/gpt-oss-120b`), Gemini
+   (`x-goog-api-key`, modèle `gemini-3.8-flash`), et OpenAI
+   (`Authorization: Bearer …`, modèle `gpt-4o-mini`). Les valeurs ne sont
+   stockées que dans le coffre credentials de n8n.
+3. Le nœud `Deterministic Validator Checks` exécute les vérifications locales.
+   Un verdict déterministe termine le sous-workflow sans appeler de LLM;
+   autrement Groq est tenté, puis Gemini et OpenAI si l'appel échoue ou ne
+   renvoie pas de JSON. Le nœud final applique les règles de décision et les
+   limites de boucle.
+4. Tester avec `examples/dossier_answer.json` et
+   `examples/dossier_ticket.json`. Un dossier ticket doit être validé avant
+   tout nœud Jira.
+5. Pour régénérer l'export après modification des règles JavaScript, lancer
+   `python scripts/build_validator_n8n.py` depuis `rag-validator`.
+6. Vérifier la parité sans appels LLM réels avec
+   `python -m eval.validator_node_parity`; cette suite utilise des verdicts
+   déterministes de fixture identiques côté Python et Node.
 
-   ```powershell
-   uvicorn src.validator.api:app --host 0.0.0.0 --port 8000
-   ```
-
-4. Vérifier `GET /health`. Le service utilise dans l'ordre Groq
-   `openai/gpt-oss-120b`, Gemini `gemini-3.8-flash`, puis OpenAI
-   `gpt-4o-mini`. Il journalise uniquement le fournisseur/modèle sélectionné,
-   jamais les clés.
-5. Le service réutilise `it-support-langgraph/itsupport/guardrails.py` et
-   `taxonomy.yaml`. Dans un checkout où ce projet frère n'est pas placé à côté
-   de `rag-validator`, définir `IT_SUPPORT_GUARDRAILS_PATH` et
-   `IT_SUPPORT_TAXONOMY_PATH` côté service vers les fichiers partagés.
-
-En déploiement, l'URL doit être joignable depuis n8n. Si n8n et le Validator
-tournent dans le même réseau Docker, utiliser le nom DNS du service, par
-exemple `http://validator-api:8000/validate`; ne pas laisser l'adresse
-placeholder ou exposer le port sans authentification/règle réseau appropriée.
+Le dépôt inclut ses fichiers de taxonomie et de guardrails dans
+[`itsupport/`](../itsupport/). Un checkout frère n'est pas requis.
 
 ## Importer et configurer le sous-workflow
 
 1. Dans n8n, **Workflows → Import from File**, sélectionner
    `n8n/validator.json`.
-2. Dans **Run Deterministic Checks and Judge**, remplacer
-   `http://YOUR-VALIDATOR-HOST:8000/validate` par l'URL privée et joignable du
-   service.
+2. Re-sélectionner les credentials `Header Auth` **Groq API**,
+   **Google Gemini API key** et **OpenAI Validator API** dans leurs nœuds
+   HTTP Request respectifs.
 3. Enregistrer le workflow et le laisser inactif; le workflow principal
    l'appellera avec **Execute Sub-workflow**.
 4. L'entrée est un seul dossier JSON complet. Utiliser
    [`examples/dossier_answer.json`](../examples/dossier_answer.json) ou
    [`examples/dossier_ticket.json`](../examples/dossier_ticket.json) pour
    tester chacun des modes.
-5. La réponse contient `verdict`, `failure_type`, `target_stage`,
+5. La sortie contient `verdict`, `failure_type`, `target_stage`,
    `stage_checks`, `feedback_for_stage` et `reason`. Le client doit traiter
    explicitement les verdicts; ne pas envoyer de réponse/créer de ticket sur
    `regenerate`, `retry_retrieval`, `clarify` ou `escalate`.

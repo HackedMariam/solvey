@@ -1,0 +1,54 @@
+# IT-support taxonomy used by Triage and as metadata filter for RAG.
+# The corpus folder name (data/corpus/<id>/) must match the category id.
+
+categories:
+  - id: network_vpn
+    label: "Network & VPN"
+    subcategories:
+      - {id: vpn_auth_failure, label: "VPN authentication failure"}
+      - {id: vpn_connection_failure, label: "VPN connection failure"}
+      - {id: wifi_connectivity, label: "Wi-Fi connectivity issue"}
+      - {id: dns_network_config, label: "DNS/network configuration error"}
+      - {id: internet_connection, label: "Internet connection problem"}
+
+  - id: auth_access
+    label: "Authentication & Access"
+    subcategories:
+      - {id: wrong_expired_password, label: "Wrong/expired password"}
+      - {id: account_locked, label: "Account locked"}
+      - {id: mfa_failure, label: "MFA/authentication failure"}
+      - {id: permission_denied, label: "Permission denied"}
+      - {id: restricted_resource_access, label: "Access to restricted resource"}
+
+  - id: email_communication
+    label: "Email & Communication"
+    subcategories:
+      - {id: cannot_send_email, label: "Cannot send email"}
+      - {id: cannot_receive_email, label: "Cannot receive email"}
+      - {id: email_auth_failure, label: "Email authentication failure"}
+      - {id: mailbox_full, label: "Mailbox/storage full"}
+      - {id: email_client_config, label: "Email client configuration problem"}
+
+  - id: software_apps
+    label: "Software & Applications"
+    subcategories:
+      - {id: app_wont_launch, label: "Application won't launch"}
+      - {id: app_crash, label: "Application crash"}
+      - {id: installation_failure, label: "Installation failure"}
+      - {id: app_config_error, label: "Application configuration error"}
+      - {id: software_update_failure, label: "Software update failure"}
+
+  - id: system_os
+    label: "System & OS"
+    subcategories:
+      - {id: system_error, label: "Windows/system error"}
+      - {id: driver_problem, label: "Driver problem"}
+      - {id: os_update_failure, label: "OS update failure"}
+      - {id: performance_issue, label: "System performance issue"}
+      - {id: hardware_error, label: "Hardware-related error"}
+
+other_category:
+  id: other
+  label: "Other / out of scope"
+  subcategories:
+    - {id: out_of_scope, label: "Out of scope"}

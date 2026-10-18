@@ -11,16 +11,14 @@ from types import ModuleType
 def load_guardrails() -> ModuleType:
     configured_path = os.getenv("IT_SUPPORT_GUARDRAILS_PATH")
     default_path = (
-        Path(__file__).resolve().parents[3]
-        / "it-support-langgraph"
+        Path(__file__).resolve().parents[2]
         / "itsupport"
         / "guardrails.py"
     )
     path = Path(configured_path) if configured_path else default_path
     if not path.is_file():
         raise FileNotFoundError(
-            "Shared guardrails.py was not found. Set IT_SUPPORT_GUARDRAILS_PATH "
-            f"to its location; checked {path}"
+            f"Bundled guardrails.py was not found at {path}. Set IT_SUPPORT_GUARDRAILS_PATH only to override it."
         )
 
     spec = importlib.util.spec_from_file_location("it_support_shared_guardrails", path)
