@@ -1,0 +1,124 @@
+{
+  "generated_at": "2026-10-17T22:21:49.704609+00:00",
+  "finished_at": "2026-10-17T22:21:52.147227+00:00",
+  "baseline": {
+    "source": "with resolution\\results.csv",
+    "rows": 100,
+    "resolution_status_counts": {
+      "top_voted": 43,
+      "accepted": 37,
+      "none": 20
+    },
+    "note": "baseline files are preserved unchanged; rows reused with normalized subcategory names and added difficulty labels"
+  },
+  "api": {
+    "calls": 0,
+    "cache_hits": 4,
+    "quota_max": 10000,
+    "quota_remaining": 9989,
+    "failures": [],
+    "invalid_tags_dropped": [
+      "account-lockout",
+      "cisco-vpn",
+      "connection-error",
+      "crash-dump",
+      "drivers",
+      "error",
+      "installer",
+      "internet",
+      "login",
+      "msi",
+      "nameserver",
+      "networking",
+      "printer-driver",
+      "setup",
+      "wireless-networking"
+    ],
+    "aborted_by_quota": false,
+    "this_run": {
+      "calls": 0,
+      "cache_hits": 4,
+      "failures": 0
+    },
+    "cumulative": {
+      "calls": 0,
+      "cache_hits": 8,
+      "duplicates": 0
+    }
+  },
+  "collection": {
+    "subcategories_targeted": [
+      "VPN authentication failure",
+      "VPN connection failure",
+      "Wi-Fi connectivity issue",
+      "DNS/network configuration error",
+      "Internet connection problem",
+      "Wrong/expired password",
+      "Account locked",
+      "MFA/authentication failure",
+      "Permission denied",
+      "Access to restricted resource",
+      "Cannot send email",
+      "Cannot receive email",
+      "Email authentication failure",
+      "Mailbox/storage full",
+      "Email client configuration problem",
+      "Application won't launch",
+      "Application crash",
+      "Installation failure",
+      "Application configuration error",
+      "Software update failure",
+      "Windows/system error",
+      "Driver problem",
+      "OS update failure",
+      "System performance issue",
+      "Hardware-related error"
+    ],
+    "per_subcategory": {},
+    "raw_candidates_accepted": 0
+  },
+  "dataset": {
+    "rows": 1500,
+    "unique_question_ids": 1500,
+    "baseline_reused": 100,
+    "new_selected": 1400,
+    "synthetic_records": 0,
+    "difficulty_counts": {
+      "hard": 500,
+      "medium": 500,
+      "easy": 500
+    },
+    "needs_review": 864,
+    "resolution_status_counts": {
+      "top_voted": 119,
+      "accepted": 925,
+      "none": 456
+    },
+    "with_images": 195,
+    "image_urls_total": 300,
+    "images_downloaded_this_run": 0
+  },
+  "exclusions": {
+    "low_relevance": 0,
+    "cell_quota_exceeded": 0,
+    "duplicates": 0
+  },
+  "coverage": {
+    "cells": 75,
+    "complete_cells": 75,
+    "total_actual": 1500,
+    "total_target": 1500,
+    "gaps": []
+  },
+  "outputs": {
+    "dataset_csv": "dataset\\so_dataset.csv",
+    "dataset_jsonl": "dataset\\so_dataset.jsonl",
+    "raw_records_jsonl": "dataset\\raw\\records.jsonl",
+    "api_cache_dir": "dataset\\raw\\api_cache",
+    "coverage_csv": "dataset\\reports\\coverage_matrix.csv",
+    "coverage_md": "dataset\\reports\\coverage_matrix.md",
+    "duplicates_csv": "dataset\\reports\\duplicates.csv",
+    "exclusions_csv": "dataset\\reports\\exclusions.csv",
+    "collection_report_json": "dataset\\reports\\collection_report.json"
+  }
+}

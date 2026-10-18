@@ -11,4 +11,11 @@ __pycache__/
 venv/
 env/
 
+# Test / Python caches
+.pytest_cache/
+
+# Regenerable pipeline artifacts (API response cache + downloaded screenshots)
+data_phase/dataset/raw/api_cache/
+data_phase/dataset/images/
+
 

@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SolveyIntakeEvidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "issue_summary",
+    "user_reported_symptoms",
+    "environment",
+    "environment_source",
+    "visual_summary",
+    "visible_text",
+    "observed_elements",
+    "observed_symptoms",
+    "technical_details",
+    "missing_information",
+    "uncertainties",
+    "visual_evidence_confidence"
+  ],
+  "properties": {
+    "issue_summary": { "type": "string" },
+    "user_reported_symptoms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operating_system", "application", "device_type"],
+      "properties": {
+        "operating_system": { "type": ["string", "null"] },
+        "application": { "type": ["string", "null"] },
+        "device_type": { "type": ["string", "null"] }
+      }
+    },
+    "environment_source": {
+      "enum": ["user_text", "screenshot", "both", "unknown"]
+    },
+    "visual_summary": { "type": ["string", "null"] },
+    "visible_text": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["text", "type"],
+        "properties": {
+          "text": { "type": "string" },
+          "type": {
+            "enum": ["error_message", "warning", "status", "label", "other"]
+          }
+        }
+      }
+    },
+    "observed_elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["element", "state"],
+        "properties": {
+          "element": { "type": "string" },
+          "state": {
+            "enum": ["error", "warning", "active", "inactive", "disconnected", "unknown"]
+          }
+        }
+      }
+    },
+    "observed_symptoms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "technical_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error_codes", "network_indicators", "system_indicators", "other_details"],
+      "properties": {
+        "error_codes": { "type": "array", "items": { "type": "string" } },
+        "network_indicators": { "type": "array", "items": { "type": "string" } },
+        "system_indicators": { "type": "array", "items": { "type": "string" } },
+        "other_details": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "missing_information": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "uncertainties": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "visual_evidence_confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    }
+  }
+}

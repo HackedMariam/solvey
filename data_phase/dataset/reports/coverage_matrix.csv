@@ -1,0 +1,76 @@
+category,subcategory,difficulty,target,actual,deficit
+Network & VPN,VPN authentication failure,easy,20,20,0
+Network & VPN,VPN authentication failure,medium,20,20,0
+Network & VPN,VPN authentication failure,hard,20,20,0
+Network & VPN,VPN connection failure,easy,20,20,0
+Network & VPN,VPN connection failure,medium,20,20,0
+Network & VPN,VPN connection failure,hard,20,20,0
+Network & VPN,Wi-Fi connectivity issue,easy,20,20,0
+Network & VPN,Wi-Fi connectivity issue,medium,20,20,0
+Network & VPN,Wi-Fi connectivity issue,hard,20,20,0
+Network & VPN,DNS/network configuration error,easy,20,20,0
+Network & VPN,DNS/network configuration error,medium,20,20,0
+Network & VPN,DNS/network configuration error,hard,20,20,0
+Network & VPN,Internet connection problem,easy,20,20,0
+Network & VPN,Internet connection problem,medium,20,20,0
+Network & VPN,Internet connection problem,hard,20,20,0
+Authentication & Access,Wrong/expired password,easy,20,20,0
+Authentication & Access,Wrong/expired password,medium,20,20,0
+Authentication & Access,Wrong/expired password,hard,20,20,0
+Authentication & Access,Account locked,easy,20,20,0
+Authentication & Access,Account locked,medium,20,20,0
+Authentication & Access,Account locked,hard,20,20,0
+Authentication & Access,MFA/authentication failure,easy,20,20,0
+Authentication & Access,MFA/authentication failure,medium,20,20,0
+Authentication & Access,MFA/authentication failure,hard,20,20,0
+Authentication & Access,Permission denied,easy,20,20,0
+Authentication & Access,Permission denied,medium,20,20,0
+Authentication & Access,Permission denied,hard,20,20,0
+Authentication & Access,Access to restricted resource,easy,20,20,0
+Authentication & Access,Access to restricted resource,medium,20,20,0
+Authentication & Access,Access to restricted resource,hard,20,20,0
+Email & Communication,Cannot send email,easy,20,20,0
+Email & Communication,Cannot send email,medium,20,20,0
+Email & Communication,Cannot send email,hard,20,20,0
+Email & Communication,Cannot receive email,easy,20,20,0
+Email & Communication,Cannot receive email,medium,20,20,0
+Email & Communication,Cannot receive email,hard,20,20,0
+Email & Communication,Email authentication failure,easy,20,20,0
+Email & Communication,Email authentication failure,medium,20,20,0
+Email & Communication,Email authentication failure,hard,20,20,0
+Email & Communication,Mailbox/storage full,easy,20,20,0
+Email & Communication,Mailbox/storage full,medium,20,20,0
+Email & Communication,Mailbox/storage full,hard,20,20,0
+Email & Communication,Email client configuration problem,easy,20,20,0
+Email & Communication,Email client configuration problem,medium,20,20,0
+Email & Communication,Email client configuration problem,hard,20,20,0
+Software & Applications,Application won't launch,easy,20,20,0
+Software & Applications,Application won't launch,medium,20,20,0
+Software & Applications,Application won't launch,hard,20,20,0
+Software & Applications,Application crash,easy,20,20,0
+Software & Applications,Application crash,medium,20,20,0
+Software & Applications,Application crash,hard,20,20,0
+Software & Applications,Installation failure,easy,20,20,0
+Software & Applications,Installation failure,medium,20,20,0
+Software & Applications,Installation failure,hard,20,20,0
+Software & Applications,Application configuration error,easy,20,20,0
+Software & Applications,Application configuration error,medium,20,20,0
+Software & Applications,Application configuration error,hard,20,20,0
+Software & Applications,Software update failure,easy,20,20,0
+Software & Applications,Software update failure,medium,20,20,0
+Software & Applications,Software update failure,hard,20,20,0
+System & OS,Windows/system error,easy,20,20,0
+System & OS,Windows/system error,medium,20,20,0
+System & OS,Windows/system error,hard,20,20,0
+System & OS,Driver problem,easy,20,20,0
+System & OS,Driver problem,medium,20,20,0
+System & OS,Driver problem,hard,20,20,0
+System & OS,OS update failure,easy,20,20,0
+System & OS,OS update failure,medium,20,20,0
+System & OS,OS update failure,hard,20,20,0
+System & OS,System performance issue,easy,20,20,0
+System & OS,System performance issue,medium,20,20,0
+System & OS,System performance issue,hard,20,20,0
+System & OS,Hardware-related error,easy,20,20,0
+System & OS,Hardware-related error,medium,20,20,0
+System & OS,Hardware-related error,hard,20,20,0

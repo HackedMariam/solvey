@@ -43,9 +43,14 @@ The system is designed to leverage structured and unstructured IT support data, 
 - Technical documentation and knowledge-base articles.
 - Screenshots associated with technical issues.
 
+## 🗂️ Repository Layout
+
+- `data_phase/` — data collection pipeline, baseline, 1,500-row dataset, validation, and the SFT notebook.
+- `vision_agent/` — Qwen2.5-VL intake/vision agent (Gradio app, prompt, and output schema).
+
 ## 📊 Dataset
 
-The current dataset is scraped from **Stack Overflow** (via the Stack Exchange API) by `scrape_so.py` and `scrape_so copy.py`. It contains IT support bug reports, their error screenshots, and — in the extended variant — the accepted or top-voted resolution.
+The current dataset is scraped from **Stack Overflow** (via the Stack Exchange API) by `data_phase/scrape_so.py` and `data_phase/scrape_so copy.py`. It contains IT support bug reports, their error screenshots, and — in the extended variant — the accepted or top-voted resolution.
 
 **What we have:**
 
@@ -67,15 +72,49 @@ The current dataset is scraped from **Stack Overflow** (via the Stack Exchange A
 
 | Folder | Script | Description |
 | --- | --- | --- |
-| `so_bug_data/` | `scrape_so.py` | Base report + screenshots (no resolution). |
-| `with resolution/` | `scrape_so copy.py` | Same reports enriched with the resolution/answer. |
+| `data_phase/so_bug_data/` | `data_phase/scrape_so.py` | Base report + screenshots (no resolution). |
+| `data_phase/with resolution/` | `data_phase/scrape_so copy.py` | Same reports enriched with the resolution/answer. |
 
-**Fields — `so_bug_data/results.csv`:**
+**Fields — `data_phase/so_bug_data/results.csv`:**
 `category`, `subcategory`, `question_id`, `title`, `link`, `score`, `creation_date`, `image_count`, `image_files`, `body_html`
 
-**Fields — `with resolution/results.csv`** (adds): `tags`, `view_count`, `answer_count`, `image_urls`, `description`, `resolution_status` (`accepted` / `top_voted` / `none`), `has_answer`, `answer_id`, `answer_score`, `answer_link`, `answer_owner`, `answer_creation_date`, `resolution`, `answer_body_html`
+**Fields — `data_phase/with resolution/results.csv`** (adds): `tags`, `view_count`, `answer_count`, `image_urls`, `description`, `resolution_status` (`accepted` / `top_voted` / `none`), `has_answer`, `answer_id`, `answer_score`, `answer_link`, `answer_owner`, `answer_creation_date`, `resolution`, `answer_body_html`
 
 Each image is named `so_<question_id>_<index>.<ext>` and referenced from the `image_files` column, linking screenshots to their issue. This gives the project a **multimodal** corpus: text (issue description + resolution) paired with visual error evidence, plus a supervision signal (the resolution) for retrieval and validation experiments.
+
+## 🔧 Dataset Pipeline
+
+The two scraper scripts above produced the initial 100-row baseline. That baseline is **preserved unchanged** and is now the seed for a larger, balanced dataset built by `data_phase/collect_dataset.py` (package `data_phase/so_pipeline/`).
+
+**Target:** 25 subcategories × 3 difficulty levels (`easy` / `medium` / `hard`) × 20 questions = **1,500 unique real Stack Overflow questions**, collected via the official Stack Exchange API.
+
+**Status: complete — 1,500 rows / 1,500 unique ids, all 75 cells filled (20 each), difficulty 500/500/500.** 195 records carry error screenshots (300 image URLs); 864 records are flagged `needs_review` with the difficulty evidence and confidence kept in the dataset. No synthetic rows.
+
+The pipeline reuses the baseline rows, collects only what is needed to fill coverage gaps, validates semantic relevance, deduplicates (question id + URL + near-duplicate titles), classifies difficulty from question content (never from votes or mere presence of a resolution), and balances each of the 75 subcategory×difficulty cells. It is **resume-safe**: API responses are cached, so re-running continues instead of restarting; `--fill-gaps` keeps already-collected rows and only targets cells still below target.
+
+Outputs live in `data_phase/dataset/` (CSV + JSONL dataset, raw records, API cache, coverage matrix, duplicate/exclusion reports, and a JSON collection report). Downloaded screenshots live in `data_phase/dataset/images/` with `image_dir` set to that relative, portable path — the folder is git-ignored, so the 146 screenshots stay local-only and do not add repository weight. Full usage, difficulty rubric, and output reference: see **[data_phase/README.md](data_phase/README.md)**.
+
+Run the data-phase commands from inside `data_phase/`:
+
+```bash
+cd data_phase
+python -m pytest tests -q       # 43 unit tests
+python collect_dataset.py --pilot      # quick end-to-end check
+python collect_dataset.py              # full collection (resume-safe)
+python collect_dataset.py --fill-gaps  # fill remaining cells, keep existing rows
+python validate_dataset.py             # 28 validation checks on the finished dataset
+python download_images.py              # fetch missing screenshots into dataset/images/ (local-only)
+```
+
+The `resolution` and `resolution_status` fields follow the existing convention (`accepted` / `top_voted` / `none`), where `none` only means the pipeline found no resolution — not that the question is unsolvable.
+
+## 🤖 Vision Agent
+
+`vision_agent/` contains the intake agent built on Qwen2.5-VL. It accepts a screenshot
+and optional text, then returns observation-only JSON for the triage agent:
+`issue_summary`, `user_reported_symptoms`, `environment`, visible text, technical
+details, `missing_information`, and uncertainties. The app, prompt versions, and JSON
+schema live in that folder.
 
 ## 🎯 Project Goals
 
